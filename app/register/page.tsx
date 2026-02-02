@@ -1,28 +1,92 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { User, Users, ShieldCheck, Utensils, CreditCard, ClipboardList, AlertTriangle, ChevronDown, Upload, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { User, Users, Mail, Phone, ShieldCheck, Upload, QrCode, Utensils, CreditCard, ClipboardList, AlertTriangle, ChevronDown } from "lucide-react";
 
 export default function RegisterPage() {
   const [teamSize, setTeamSize] = useState(2);
-  const [registeredTeams, setRegisteredTeams] = useState(10); // Set to 20 to test Waitlist Mode
+  const [registeredTeams, setRegisteredTeams] = useState(0); // Toggle this to test Waitlist
   const maxTeams = 20;
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Waitlist Logic: If teams >= 20, enable waitlist mode
   const isWaitlist = registeredTeams >= maxTeams;
-
-  // Calculate progress for the top bar
   const registrationProgress = useMemo(() => (registeredTeams / maxTeams) * 100, [registeredTeams]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Validation Logic
+  const validateForm = (formData: FormData) => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(?:\+91|91)?[6-9]\d{9}$/; // Accepts +91, 91, or just 10 digits
+    const teamName = formData.get("teamName") as string;
+    if (!teamName || teamName.length < 3) {
+      newErrors["teamName"] = "Team name must be at least 3 characters.";
+      isValid = false;
+    }
+
+    // Validate Members
+    for (let i = 0; i < teamSize; i++) {
+      const name = formData.get(`member${i}_name`) as string;
+      const email = formData.get(`member${i}_email`) as string;
+      const phone = formData.get(`member${i}_phone`) as string;
+
+      if (!name) newErrors[`member${i}_name`] = "Name is required.";
+      
+      if (!email || !emailRegex.test(email)) {
+        newErrors[`member${i}_email`] = "Enter a valid email address.";
+        isValid = false;
+      }
+
+      // Phone Validation: Remove spaces/dashes before checking
+      const cleanPhone = phone?.replace(/[\s-]/g, "");
+      if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
+        newErrors[`member${i}_phone`] = "Enter a valid 10-digit mobile number.";
+        isValid = false;
+      }
+    }
+    if (!isWaitlist) {
+      const file = formData.get("paymentProof") as File;
+      if (!file || file.size === 0 || file.name === "undefined") {
+        newErrors["paymentProof"] = "You must upload the payment screenshot.";
+        isValid = false;
+      } else {
+        // Optional: Check file type
+        const validTypes = ["image/jpeg", "image/png", "application/pdf"];
+        if (!validTypes.includes(file.type)) {
+           newErrors["paymentProof"] = "Only JPG, PNG, or PDF files are allowed.";
+           isValid = false;
+        }
+        // Optional: Check file size (e.g., max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+           newErrors["paymentProof"] = "File size must be less than 5MB.";
+           isValid = false;
+        }
+      }
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isWaitlist) {
-      alert("Submitted to Waitlist! We will contact you if a slot opens.");
-      // Add your waitlist API call here
+    setIsSubmitting(true);
+    
+    const formData = new FormData(e.currentTarget);
+
+    if (validateForm(formData)) {
+      // simulate API call
+      setTimeout(() => {
+        alert(isWaitlist ? "Added to Waitlist!" : "Registration Successful!");
+        setIsSubmitting(false);
+      }, 1000);
     } else {
-      alert("Registration Submitted! Verifying payment...");
-      // Add your standard registration API call here
+      setIsSubmitting(false);
+      // Scroll to top error
+      const firstError = document.querySelector(".text-red-500");
+      firstError?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -63,9 +127,9 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-10 mt-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-10 mt-4">
           
-          {/* SECTION 1: TEAM DATA GATHERING (Always Visible) */}
+          {/* SECTION 1: TEAM DATA GATHERING */}
           <section className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-10 backdrop-blur-md space-y-8">
             <div className="flex items-center gap-3 border-b border-white/10 pb-4 text-cyan-400">
               <ClipboardList size={24} />
@@ -73,25 +137,31 @@ export default function RegisterPage() {
             </div>
             
             <div className="grid grid-cols-1 mt-2 md:grid-cols-2 gap-6">
-              <InputField label="Team Name" icon={<ShieldCheck size={18} />} placeholder="e.g. Neural Ninjas" name="teamName" />
+              <InputField 
+                label="Team Name" 
+                icon={<ShieldCheck size={18} />} 
+                placeholder="e.g. Neural Ninjas" 
+                name="teamName" 
+                error={errors.teamName}
+              />
               
               <div className="relative group w-full">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold ml-1 flex items-center gap-2 mb-3">
-                  <Users size={16} className="text-blue-500" /> Team Size (2-4 Members)
+                    <Users size={16} className="text-blue-500" /> Team Size (2-4 Members)
                 </label>
                 <div className="relative">
-                  <select 
+                    <select 
                     className="w-full bg-black/60 border border-white/10 rounded-2xl px-6 py-4 outline-none 
                                focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 
                                transition-all appearance-none cursor-pointer text-sm font-medium text-white
                                hover:bg-black/80 hover:border-white/20"
                     value={teamSize}
                     onChange={(e) => setTeamSize(Number(e.target.value))}
-                  >
+                    >
                     <option value={2} className="bg-[#020617] text-white">2 Members</option>
                     <option value={3} className="bg-[#020617] text-white">3 Members</option>
                     <option value={4} className="bg-[#020617] text-white">4 Members</option>
-                  </select>
+                    </select>
                 </div>
               </div>
             </div>
@@ -104,9 +174,25 @@ export default function RegisterPage() {
                     <User size={16} /> {index === 0 ? "Team Leader" : `Member ${index + 1}`}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <InputField label="Name" placeholder="Full Name" name={`member${index}_name`} />
-                    <InputField label="Email" type="email" placeholder="email@gmail.com" name={`member${index}_email`} />
-                    <InputField label="Phone" placeholder="+91 ..." name={`member${index}_phone`} />
+                    <InputField 
+                      label="Name" 
+                      placeholder="Full Name" 
+                      name={`member${index}_name`} 
+                      error={errors[`member${index}_name`]}
+                    />
+                    <InputField 
+                      label="Email" 
+                      type="email" 
+                      placeholder="email@gmail.com" 
+                      name={`member${index}_email`} 
+                      error={errors[`member${index}_email`]}
+                    />
+                    <InputField 
+                      label="Phone" 
+                      placeholder="+91 ..." 
+                      name={`member${index}_phone`} 
+                      error={errors[`member${index}_phone`]}
+                    />
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold flex items-center gap-2 mb-1">
@@ -131,20 +217,21 @@ export default function RegisterPage() {
               ))}
             </div>
 
-            {/* Waitlist Specific Submit Button */}
+            {/* Waitlist Button */}
             {isWaitlist && (
               <div className="pt-6 mt-4">
                 <button 
                   type="submit"
-                  className="w-full bg-orange-600 hover:bg-white text-black font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(234,88,12,0.4)] active:scale-95"
+                  disabled={isSubmitting}
+                  className="w-full bg-white p-4 text-black font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(234,88,12,0.4)] active:scale-95 disabled:opacity-70"
                 >
-                  JOIN WAITLIST (NO PAYMENT)
+                  {isSubmitting ? "VALIDATING..." : "JOIN WAITLIST (NO PAYMENT)"}
                 </button>
               </div>
             )}
           </section>
 
-          {/* PAYMENT & UPLOAD SECTIONS: Only rendered if NOT on waitlist */}
+          {/* PAYMENT & UPLOAD: Only if NOT on waitlist */}
           {!isWaitlist && (
             <>
               {/* SECTION 2: PAYMENT */}
@@ -184,33 +271,58 @@ export default function RegisterPage() {
               </section>
 
               {/* SECTION 3: PROOF UPLOAD */}
-              <section className="bg-white/5 border border-white/10 rounded-3xl mt-4 p-8 md:p-10 backdrop-blur-md space-y-8">
+                <section className="bg-white/5 border border-white/10 rounded-3xl mt-4 p-8 md:p-10 backdrop-blur-md space-y-8">
                 <div className="flex items-center mb-2 gap-3 border-b border-white/10 pb-4 text-cyan-400">
-                  <Upload size={24} />
-                  <h2 className="text-xl font-bold uppercase tracking-wider">Step 3: Payment Proof</h2>
+                    <Upload size={24} />
+                    <h2 className="text-xl font-bold uppercase tracking-wider">Step 3: Payment Proof</h2>
                 </div>
                 
                 <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Upload Transaction Screenshot</label>
-                  <div className="group relative border-2 border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center hover:border-cyan-400/50 transition-all cursor-pointer bg-black/20">
-                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" required />
-                    <div className="p-4 rounded-full bg-cyan-400/10 text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-                      <Upload size={32} />
+                    <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Upload Transaction Screenshot</label>
+                    
+                    {/* Added conditional border color based on error state */}
+                    <div className={`group relative border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer bg-black/20 
+                    ${errors.paymentProof 
+                        ? "border-red-500/50 bg-red-500/5 hover:border-red-500" 
+                        : "border-white/10 hover:border-cyan-400/50"
+                    }`}
+                    >
+                    <input 
+                        type="file" 
+                        name="paymentProof" // <--- CRITICAL: Must match the key used in formData.get()
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        // We remove 'required' here to handle it with our custom validation instead
+                    />
+                    
+                    <div className={`p-4 rounded-full mb-4 transition-transform group-hover:scale-110 
+                        ${errors.paymentProof ? "bg-red-500/10 text-red-500" : "bg-cyan-400/10 text-cyan-400"}`}>
+                        {errors.paymentProof ? <AlertCircle size={32} /> : <Upload size={32} />}
                     </div>
-                    <p className="text-sm text-gray-300 font-bold">Drop screenshot here or click to browse</p>
+                    
+                    <p className={`text-sm font-bold ${errors.paymentProof ? "text-red-400" : "text-gray-300"}`}>
+                        {errors.paymentProof ? "Missing File" : "Drop screenshot here or click to browse"}
+                    </p>
                     <p className="text-[10px] text-gray-500 mt-2 uppercase">Supports: JPG, PNG, PDF (Max 5MB)</p>
-                  </div>
+                    </div>
+
+                    {/* Display Error Message Text */}
+                    {errors.paymentProof && (
+                    <p className="text-[10px] text-red-400 font-medium ml-1 animate-in slide-in-from-top-1">
+                        {errors.paymentProof}
+                    </p>
+                    )}
                 </div>
 
                 <div className="pt-6 mt-4">
-                  <button 
+                    <button 
                     type="submit"
-                    className="w-full bg-blue-600 p-4 hover:bg-white text-black font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)] active:scale-95 disabled:opacity-50 disabled:grayscale"
-                  >
-                    COMPLETE REGISTRATION
-                  </button>
+                    disabled={isSubmitting}
+                    className="w-full bg-blue-600 p-4 hover:bg-white text-black font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)] active:scale-95 disabled:opacity-70 disabled:grayscale"
+                    >
+                    {isSubmitting ? "VALIDATING..." : "COMPLETE REGISTRATION"}
+                    </button>
                 </div>
-              </section>
+            </section>
             </>
           )}
         </form>
@@ -219,19 +331,30 @@ export default function RegisterPage() {
   );
 }
 
-function InputField({ label, icon, placeholder, name, type = "text" }: any) {
+// Updated InputField with Error Support
+function InputField({ label, icon, placeholder, name, type = "text", error }: any) {
   return (
     <div className="space-y-2">
-      <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1 flex items-center gap-2">
-        {icon} {label}
-      </label>
-      <input
-        required
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition-all text-sm placeholder:text-gray-700"
-      />
+      <div className="flex justify-between items-center">
+        <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1 flex items-center gap-2">
+          {icon} {label}
+        </label>
+      </div>
+      
+      <div className="relative">
+        <input
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          className={`w-full bg-black/40 border rounded-xl px-5 py-4 outline-none transition-all text-sm placeholder:text-gray-700
+            ${error ? 'border-red-500/50 focus:border-red-500 bg-red-500/5' : 'border-white/10 focus:border-blue-500'}`}
+        />
+        {error && (
+            <div className="absolute right-8  text-red-500 animate-pulse align-middle flex items-center justify-center gap-2">
+                <AlertCircle size={18} /><p className="text-[10px] text-red-400 font-medium ml-1 animate-in slide-in-from-top-1">{error}</p>
+            </div>
+        )}
+      </div>
     </div>
   );
 }
