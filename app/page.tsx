@@ -1,7 +1,7 @@
 'use client';
 import Link from "next/link";
 import Image from "next/image";
-import { Trophy, Medal, Crown, Handshake } from "lucide-react";
+import { Medal, Crown, Handshake, Award, Sparkles } from "lucide-react";
 
 // Mock Data for Sponsors (Replace logos with your actual files later)
 const sponsors = [
@@ -76,13 +76,13 @@ export default function HomePage() {
 
       {/* Key Info Grid */}
       <div className="max-w-6xl mx-auto px-6 pb-20 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <InfoCard title="📅 Date" value="Mar 16 - 17, 2026" subValue="Starts 10:00 AM" />
+        <InfoCard title="📅 Date" value="Mar 17 - 18, 2026" subValue="Starts 10:00 AM" />
         <InfoCard title="📍 Venue" value="SSTM Campus" subValue="Muttom, Aluva" />
         <InfoCard title="⏱ Format" value="24 Hr Hackathon" subValue="2 - 4 Members per team" />
       </div>
 
       {/* Prize Pool Section */}
-      <section className="max-w-6xl mx-auto px-6 mb-6 pb-24">
+      <section className="max-w-6xl mx-auto px-6 mb-6 pb-12">
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000" />
           
@@ -162,93 +162,185 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative py-24 overflow-hidden border-t border-white/5 bg-[#020617]">
-  {/* Cyber Ambient Light */}
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent -z-10" />
-
-  <div className="max-w-8xl mx-auto px-6 mb-16 text-center">
-    <div className="flex flex-col items-center justify-center gap-4">
-      <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
-        <Handshake className="text-cyan-400" size={28} />
+      <section className="relative py-20 overflow-hidden border-t border-white/5 bg-[#020617]">
+      {/* Enhanced Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.08),transparent_50%)]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+      
+      {/* Floating Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400/20 rounded-full animate-pulse" />
+        <div className="absolute top-3/4 right-1/4 w-1.5 h-1.5 bg-blue-400/20 rounded-full animate-pulse delay-75" />
+        <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-300/20 rounded-full animate-pulse delay-150" />
       </div>
-      <div className="space-y-1">
-        <h3 className="text-3xl md:text-5xl font-black  tracking-tighter text-white uppercase ">
-          SINOVA{' '}
-          <span className="relative inline-block ">
-            <span 
-              className="px-2" // Add padding here to prevent the italic slant from clipping
-              style={{
-                background: "linear-gradient(to right, #60A5FA, #67E8F9)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                display: "inline-block" // Ensure it's a block to respect the padding
-              }}>
-              SPONSORS
-            </span>
-          </span>
-        </h3>
-        <p className="text-[10px] font-mono tracking-[0.5em] text-gray-500 uppercase mt-2">
-          Technical Collaboration & Support
-        </p>
-      </div>
-    </div>
-  </div>
 
-  {/* Marquee Wrapper */}
-  <div className="relative flex flex-col group py-12">
-    {/* High-Intensity Edge Fades */}
-    <div className="absolute top-0 bottom-0 left-0 w-32 md:w-72 z-20 bg-gradient-to-r from-[#020617] via-[#020617]/90 to-transparent pointer-events-none" />
-    <div className="absolute top-0 bottom-0 right-0 w-32 md:w-72 z-20 bg-gradient-to-l from-[#020617] via-[#020617]/90 to-transparent pointer-events-none" />
-
-    {/* The Scrolling Track */}
-    <div className="animate-marquee flex gap-4 items-center whitespace-nowrap min-w-full">
-      {[...sponsors, ...sponsors, ...sponsors].map((sponsor, index) => (
-        <div 
-          key={index} 
-          className="relative flex-shrink-0 w-64 h-32 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center p-8 backdrop-blur-sm transition-all duration-500 hover:bg-white/[0.07] hover:border-cyan-400/50 hover:shadow-[0_0_40px_rgba(34,211,238,0.1)] group/card cursor-pointer overflow-hidden"
-        >
-          {/* Subtle Grid Pattern inside card */}
-          <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
-          
-          {/* Logo container with fixed aspect ratio */}
-          <div className="relative w-full h-full flex flex-col items-center justify-center gap-2">
-            <div className="relative w-full h-12 opacity-30 grayscale group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-110 transition-all duration-500 ease-out">
-              <Image 
-                src={sponsor.logo} 
-                alt={sponsor.name} 
-                fill 
-                className="object-contain " 
-              />
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* Header Section - More Prominent */}
+        <div className="mb-20 text-center">
+          <div className="flex flex-col items-center justify-center gap-6">
+            {/* Enhanced Icon Badge */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full animate-pulse" />
+              <div className="relative p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+                <Award className="text-cyan-400" size={36} />
+              </div>
             </div>
-            {/* Sponsor Name - Hidden by default, slides up on hover */}
-            <span className="text-[10px] font-mono text-cyan-400 font-bold tracking-[0.2em] uppercase translate-y-4 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300">
-              {sponsor.name}
-            </span>
+
+            {/* Title with Better Hierarchy */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-cyan-500/50" />
+                <p className="text-xs font-mono tracking-[0.3em] text-cyan-400/80 uppercase">
+                  Proudly Supported By
+                </p>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-cyan-500/50" />
+              </div>
+              
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white uppercase">
+                Our{' '}
+                <span className="relative inline-block">
+                  <span 
+                    className="px-3"
+                    style={{
+                      background: "linear-gradient(135deg, #60A5FA 0%, #06B6D4 50%, #67E8F9 100%)",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent",
+                      display: "inline-block"
+                    }}>
+                    Sponsors
+                  </span>
+                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500/0 via-cyan-500/50 to-cyan-500/0" />
+                </span>
+              </h2>
+
+              <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                SINOVA is made possible by the generous support and collaboration of these 
+                industry-leading organizations who share our vision for innovation and excellence.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Premium Sponsor Grid - Prominent Display */}
+        <div className="mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {sponsors.map((sponsor, index) => (
+              <div 
+                key={index}
+                className="group/card relative"
+              >
+                {/* Glow Effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                
+                {/* Card */}
+                <div className="relative h-48 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-2xl flex flex-col items-center justify-center p-8 backdrop-blur-sm transition-all duration-500 hover:border-cyan-400/50 hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden">
+                  
+                  {/* Subtle Grid Pattern */}
+                  <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:12px_12px]" />
+                  
+                  {/* Content */}
+                  <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-4">
+                    {/* Logo */}
+                    <div className="relative w-full h-20 opacity-90 group-hover/card:opacity-100 group-hover/card:scale-105 transition-all duration-500 ease-out">
+                      <Image 
+                        src={sponsor.logo} 
+                        alt={`${sponsor.name} logo`}
+                        fill 
+                        className="object-contain" 
+                      />
+                    </div>
+                    
+                    {/* Divider */}
+                    <div className="w-12 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Sponsor Name - Always Visible but Enhanced on Hover */}
+                    <div className="text-center space-y-1 transition-all duration-300 group-hover/card:scale-105">
+                      <h3 className="text-lg font-bold text-white/70 group-hover/card:text-white transition-colors">
+                        {sponsor.name}
+                      </h3>
+                      <p className="text-[10px] font-mono text-cyan-400/60 group-hover/card:text-cyan-400 tracking-[0.2em] uppercase transition-colors">
+                        Technical Partner
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Corner Accents */}
+                  <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-white/10 group-hover/card:border-cyan-400/60 transition-all duration-300" />
+                  <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-white/10 group-hover/card:border-cyan-400/60 transition-all duration-300" />
+                  
+                  {/* Top-right badge on hover */}
+                  <div className="absolute top-3 right-3 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                    <Sparkles className="text-cyan-400/60" size={14} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Additional Scrolling Marquee for Extended Recognition */}
+        <div className="relative">
+          <div className="text-center mb-8">
+            <p className="text-xs font-mono tracking-[0.3em] text-gray-500 uppercase">
+              Technical Collaboration & Support
+            </p>
           </div>
 
-          {/* Cyber Edge Accents */}
-          <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-white/10 group-hover/card:border-cyan-400/50 transition-colors" />
-          <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-white/10 group-hover/card:border-cyan-400/50 transition-colors" />
+          {/* Marquee Container */}
+          <div className="relative flex flex-col group/marquee py-4 overflow-hidden border-t border-b border-white/5">
+            {/* Scrolling Track - Smaller, Complementary Display */}
+            <div className="animate-marquee flex gap-6 items-center whitespace-nowrap">
+              {[...sponsors, ...sponsors, ...sponsors, ...sponsors].map((sponsor, index) => (
+                <div 
+                  key={index} 
+                  className="flex-shrink-0 w-40 h-40 border border-white/5 rounded-xl flex items-center justify-center p-4 backdrop-blur-sm hover:bg-white/[0.03] transition-colors"
+                >
+                  <div className="relative w-full h-20  opacity-60 hover:opacity-80 transition-opacity">
+                    <Image 
+                      src={sponsor.logo} 
+                      alt={sponsor.name} 
+                      fill 
+                      className="object-contain" 
+                    />
+                    <p className="absolute -bottom-8 left-0 right-0 text-center text-xs text-white">{sponsor.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
 
-  <style jsx>{`
-    .animate-marquee {
-      animation: marquee 50s linear infinite;
-    }
-    @keyframes marquee {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    .group:hover .animate-marquee {
-      animation-play-state: paused;
-    }
-  `}</style>
-</section>
-      
+        {/* Thank You Message */}
+        <div className="mt-16 text-center">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-full">
+            <Handshake className="text-cyan-400" size={18} />
+            <p className="text-sm text-gray-400">
+              Thank you to all our sponsors for making SINOVA possible
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 10s linear infinite;
+        }
+        .group\/marquee:hover .animate-marquee {
+          animation-play-state: paused;
+        }
+        .delay-75 {
+          animation-delay: 75ms;
+        }
+        .delay-150 {
+          animation-delay: 150ms;
+        }
+      `}</style>
+    </section>
     </section>
   );
 }

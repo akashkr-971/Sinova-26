@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2, CheckCircle2, Clock, ShieldCheck, Activity, Terminal, Fingerprint } from "lucide-react";
+import { Search, Loader2, CheckCircle2, Clock, ShieldCheck, Terminal, Fingerprint, AlertCircle, Activity } from "lucide-react";
+import { supabase } from "@/lib/supabase"; // Ensure this path is correct
 
 type StatusResult = {
   teamId: string;
   teamName: string;
   leaderName: string;
-  paymentStatus: "Pending" | "Confirmed" | "Failed";
-  registrationStatus: "Under Review" | "Approved" | "Rejected";
+  paymentStatus: string;
+  registrationStatus: string;
   lastUpdated: string;
+  isWaitlist: boolean;
 };
 
 export default function CheckStatusPage() {
@@ -18,29 +20,52 @@ export default function CheckStatusPage() {
   const [result, setResult] = useState<StatusResult | null>(null);
   const [error, setError] = useState("");
 
-  const handleSearch = async (e: React.SubmitEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setResult(null);
 
-    // Simulated fetch - Replace with your actual database call
-    setTimeout(() => {
-      setLoading(false);
-      // Mock data for demonstration
-      if (query.toLowerCase().includes("team") || query.includes("@")) {
-        setResult({
-          teamId: "SNV-26-4022",
-          teamName: "Neural Ninjas",
-          leaderName: "Akash KR",
-          paymentStatus: "Confirmed",
-          registrationStatus: "Approved",
-          lastUpdated: "Feb 02, 2026",
-        });
+    try {
+      // 1. Determine if query is a Number (Team ID) or String (Email)
+      const isNumber = !isNaN(Number(query));
+      
+      let supabaseQuery = supabase.from("teams").select("*");
+
+      if (isNumber) {
+        supabaseQuery = supabaseQuery.eq("team_number", Number(query));
       } else {
-        setError("Database Error: No entry matching this ID was found in our records.");
+        // Search by looking into the members JSONB array for the leader's email (index 0)
+        // Or you can use the syntax to search the entire array if needed
+        supabaseQuery = supabaseQuery.filter('members->0->>email', 'eq', query.toLowerCase().trim());
       }
-    }, 1500);
+
+      const { data, error: dbError } = await supabaseQuery.single();
+
+      if (dbError || !data) {
+        setError("No entry matching this Team ID or Leader Email was found.");
+      } else {
+        // 2. Map Supabase data to our StatusResult type
+        setResult({
+          teamId: data.team_number.toString(),
+          teamName: data.team_name,
+          leaderName: data.members[0].name,
+          paymentStatus: data.payment_status === 'confirmed' ? 'Confirmed' : 'Pending',
+          registrationStatus: data.is_waitlist ? "Waitlisted" : "Approved",
+          lastUpdated: new Date(data.created_at).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          isWaitlist: data.is_waitlist
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred while accessing the database.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,8 +83,8 @@ export default function CheckStatusPage() {
           <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter leading-none">
             CHECK <span className="text-blue-500">STATUS</span>
           </h1>
-          <p className="text-gray-500 max-w-md mx-auto text-sm md:text-base">
-            Access the SINOVA database to verify your team's registration and payment clearance.
+          <p className="text-gray-500 max-w-md mx-auto text-sm md:text-base font-mono uppercase tracking-tight">
+            SINOVA DATABASE v2.0 // SEARCH BY TEAM ID OR LEADER EMAIL
           </p>
         </div>
 
@@ -73,7 +98,7 @@ export default function CheckStatusPage() {
             <input
               type="text"
               required
-              placeholder="Enter Team ID or Email..."
+              placeholder="Ex: 12 or arjun@gmail.com"
               className="flex-1 bg-transparent border-none px-4 py-5 outline-none text-white font-mono placeholder:text-gray-700"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -98,9 +123,12 @@ export default function CheckStatusPage() {
           )}
 
           {error && (
-            <div className="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-400 text-center animate-in fade-in slide-in-from-bottom-4">
-              <p className="font-bold">Entry Not Found</p>
-              <p className="text-sm opacity-70">{error}</p>
+            <div className="p-8 rounded-3xl border border-red-500/20 bg-red-500/5 text-red-400 text-center animate-in fade-in slide-in-from-bottom-4 flex flex-col items-center gap-4">
+              <AlertCircle size={40} />
+              <div>
+                <p className="font-bold text-lg uppercase tracking-tighter">Entry Not Found</p>
+                <p className="text-sm opacity-70 font-mono">{error}</p>
+              </div>
             </div>
           )}
 
@@ -114,13 +142,24 @@ export default function CheckStatusPage() {
                 
                 <div className="relative z-10 space-y-8">
                   <div className="border-b border-white/10 pb-6">
-                    <h2 className="text-3xl font-black italic text-blue-400 uppercase tracking-tight mb-2">{result.teamName}</h2>
-                    <p className="text-gray-500 font-mono text-xs mt-1 tracking-widest mb-1">ID: {result.teamId}</p>
+                    <div className="flex items-center gap-2 text-blue-400 font-mono text-[10px] uppercase tracking-widest mb-2">
+                       <Activity size={12} /> Live Database Entry
+                    </div>
+                    <h2 className="text-3xl font-black italic text-white uppercase tracking-tight mb-2">{result.teamName}</h2>
+                    <p className="text-gray-500 font-mono text-xs mt-1 tracking-widest">TEAM ID: #{result.teamId}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mt-2">
-                    <StatusBox label="Payment Status" value={result.paymentStatus} confirmed={result.paymentStatus === "Confirmed"} />
-                    <StatusBox label="Registration" value={result.registrationStatus} confirmed={result.registrationStatus === "Approved"} />
+                    <StatusBox 
+                      label="Payment Proof" 
+                      value={result.paymentStatus} 
+                      confirmed={result.paymentStatus === "Confirmed"} 
+                    />
+                    <StatusBox 
+                      label="Admission" 
+                      value={result.registrationStatus} 
+                      confirmed={!result.isWaitlist} 
+                    />
                   </div>
                 </div>
               </div>
@@ -130,12 +169,12 @@ export default function CheckStatusPage() {
                 <div className="p-6 rounded-3xl bg-blue-600/10 border border-blue-500/20">
                   <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">Verification Audit</h4>
                   <ul className="space-y-4">
-                    <AuditStep step="Team Validated" active />
-                    <AuditStep step="Payment Proof Received" active />
-                    <AuditStep step="Final Approval" active={result.registrationStatus === "Approved"} />
+                    <AuditStep step="Database Identity Sync" active />
+                    <AuditStep step="Leader Email Verified" active />
+                    <AuditStep step="Slot Secured" active={!result.isWaitlist} />
                   </ul>
                   <p className="mt-6 pt-4 border-t border-white/5 text-[10px] text-gray-500 font-mono">
-                    Last Sync: {result.lastUpdated}
+                    Last Database Update: {result.lastUpdated}
                   </p>
                 </div>
               </div>
@@ -146,8 +185,6 @@ export default function CheckStatusPage() {
     </main>
   );
 }
-
-/* Sub-components for better organization */
 
 function StatusBox({ label, value, confirmed }: { label: string; value: string; confirmed: boolean }) {
   return (

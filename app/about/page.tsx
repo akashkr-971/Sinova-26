@@ -32,13 +32,13 @@ export default function AboutPage() {
           <div className="relative">
              {/* Decorative Frame for an Image */}
             <div className="absolute -inset-4 bg-blue-500/20 rounded-2xl blur-xl" />
-            <div className="relative rounded-2xl border border-white/10 overflow-hidden bg-white/5 aspect-video flex items-center justify-center mb-4">
+            <div className="relative rounded-2xl border border-white/10 bg-white/5 aspect-video flex items-center justify-center mb-4">
               <Image 
                 src="/Sinova26.png" 
                 alt="Sinova Event Poster" 
                 width={500} 
-                height={300}
-                className="object-cover opacity-80 hover:opacity-100 transition-opacity mt-4 mb-4" 
+                height={500}
+                className="object-cover mt-4 mb-4" 
               />
             </div>
           </div>

@@ -1,13 +1,25 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Menu, X } from "lucide-react"; // Import icons
 
 export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = [
+    { name: "About", href: "/about" },
+    { name: "Rules", href: "/rules" },
+    { name: "Check Status", href: "/check-status" },
+    { name: "Contact", href: "/contact" },
+  ];
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-      {/* Floating Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         <div className="relative group">
-          {/* Animated Glow Border Effect */}
+          {/* Animated Glow Border */}
           <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-2xl blur-sm opacity-30 group-hover:opacity-60 transition duration-500"></div>
           
           {/* Main Bar */}
@@ -29,14 +41,9 @@ export default function Navbar() {
               </span>
             </Link>
 
-            {/* Navigation Links */}
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              {[
-                { name: "About", href: "/about" },
-                { name: "Rules", href: "/rules" },
-                { name: "Check Status", href: "/check-status" },
-                { name: "Contact", href: "/contact" },
-              ].map((link) => (
+              {navLinks.map((link) => (
                 <Link 
                   key={link.name}
                   href={link.href} 
@@ -48,17 +55,49 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Action Button */}
-            <div className="flex items-center">
+            {/* Desktop Register Button & Mobile Toggle */}
+            <div className="flex items-center gap-4">
               <Link 
                 href="/register" 
-                className="relative inline-flex items-center justify-center px-6 py-2 text-sm font-bold text-black transition-all duration-200 bg-cyan-400 rounded-lg hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400"
+                className="hidden sm:inline-flex items-center justify-center px-6 py-2 text-sm font-bold text-black transition-all duration-200 bg-cyan-400 rounded-lg hover:bg-white focus:outline-none"
               >
                 Register
               </Link>
-            </div>
 
+              {/* Mobile Menu Button */}
+              <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="md:hidden p-2 text-gray-300 hover:text-white transition-colors"
+              >
+                {isOpen ? <X size={28} /> : <Menu size={28} />}
+              </button>
+            </div>
           </div>
+
+          {/* Mobile Navigation Drawer */}
+          {isOpen && (
+            <div className="absolute top-20 left-0 right-0 md:hidden animate-in slide-in-from-top-5 duration-300">
+              <div className="bg-black/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 space-y-4 shadow-2xl">
+                {navLinks.map((link) => (
+                  <Link 
+                    key={link.name}
+                    href={link.href} 
+                    onClick={() => setIsOpen(false)}
+                    className="block text-lg font-bold text-gray-300 hover:text-cyan-400 transition-colors border-b border-white/5 pb-2"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+                <Link 
+                  href="/register" 
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full text-center py-4 bg-cyan-400 text-black font-black italic rounded-xl"
+                >
+                  REGISTER NOW
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>
