@@ -272,7 +272,7 @@ export default function RegisterPage() {
           </div>
           <div className="h-3 w-full bg-white/5 rounded-full border border-white/10 overflow-hidden">
             <div 
-              className={`h-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(34,211,238,0.5)] ${isWaitlist ? 'bg-orange-500' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`}
+              className={`h-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(34,211,238,0.5)] ${isWaitlist ? 'bg-orange-500' : 'bg-linear-to-r from-blue-600 to-cyan-400'}`}
               style={{ width: `${Math.min(registrationProgress, 100)}%` }}
             />
           </div>
@@ -516,7 +516,7 @@ export default function RegisterPage() {
                       </div>
                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-cyan-600 to-blue-600 transition-all duration-300"
+                          className="h-full bg-linear-to-r from-cyan-600 to-blue-600 transition-all duration-300"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
