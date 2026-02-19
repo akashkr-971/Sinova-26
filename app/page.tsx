@@ -81,10 +81,21 @@ export default function HomePage() {
         <InfoCard title="⏱ Format" value="24 Hr Hackathon" subValue="2 - 4 Members per team" />
       </div>
 
+      <div className="max-w-6xl mx-auto px-6 mb-20 rounded-2xl">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4828.636637847497!2d76.32476437587174!3d10.067723790041203!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b080e83612ebbbd%3A0x2b450cde81425a00!2sSCMS%20School%20of%20Technology%20and%20Management%20(SSTM)!5e1!3m2!1sen!2sin!4v1771525210065!5m2!1sen!2sin" 
+          width="100%" 
+          height="300" 
+          loading="lazy" 
+          referrerPolicy="no-referrer-when-downgrade">  
+        </iframe>
+      </div>
+
+
+
       {/* Prize Pool Section */}
       <section className="max-w-6xl mx-auto px-6 mb-6 pb-12">
         <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000" />
+          <div className="absolute -inset-1 bg-linear-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000" />
           
           <div className="relative bg-[#020617] border border-white/10 rounded-[2.5rem] p-8 md:p-16 text-center overflow-hidden">
             
