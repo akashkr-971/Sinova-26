@@ -149,7 +149,7 @@ export default function ContactPage() {
                     </div>
 
                     <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-20 transition duration-1000"></div>
+                    <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-20 transition duration-1000"></div>
                     
                     <form 
                         onSubmit={handleSubmit}
@@ -157,7 +157,7 @@ export default function ContactPage() {
                     >
                         {/* Name Field */}
                         <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-blue-400 mb-2 flex items-center gap-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2 flex items-center gap-2">
                             <User size={14} /> Full Name
                         </label>
                         <input
@@ -171,7 +171,7 @@ export default function ContactPage() {
 
                         {/* Email Field */}
                         <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-blue-400 mb-2 flex items-center gap-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2 flex items-center gap-2">
                             <Mail size={14} /> Email Address
                         </label>
                         <input
@@ -185,7 +185,7 @@ export default function ContactPage() {
 
                         {/* Message Field */}
                         <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-blue-400 mb-2 flex items-center gap-2">
+                        <label className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2 flex items-center gap-2">
                             <MessageSquare size={14} /> Your Query
                         </label>
                         <textarea

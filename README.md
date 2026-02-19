@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SINOVA'26 Website
+
+Official website for **SINOVA'26 — HACK4IMPACT**, a national-level inter-collegiate hackathon hosted by SCMS School of Technology and Management (SSTM). The site covers event details, rules, sponsors, contact, registration workflow, payment verification, and an admin dashboard.
+
+## Features
+
+- High-impact landing and sponsors showcase
+- About page with event overview and organizer details
+- Registration flow with team size, member details, meal preference
+- Payment screenshot OCR verification (Tesseract.js) + duplicate detection
+- Supabase-backed team registration and waitlist handling
+- Registration status lookup by team ID or leader email
+- Contact form with email delivery via Resend
+- Admin dashboard with exports and participant stats
+
+## Routes
+
+- `/` — Landing page
+- `/about` — Event overview
+- `/rules` — Rules & regulations
+- `/register` — Team registration
+- `/register/success` — Registration confirmation
+- `/check-status` — Registration status lookup
+- `/contact` — Coordinators + contact form
+- `/adminsinova` — Admin dashboard
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS v4
+- Supabase (database + storage)
+- Resend (email)
+- Tesseract.js (OCR)
+- XLSX (admin export)
+- jsPDF (reporting utilities)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file (do not commit secrets):
 
-## Learn More
+```bash
+RESEND_API_KEY=your_resend_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-To learn more about Next.js, take a look at the following resources:
+Notes:
+- The contact form uses `RESEND_API_KEY` in `app/api/send-email/route.ts`.
+- Supabase is configured in `lib/supabase.ts`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure (High Level)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `app/` — Pages and API routes (App Router)
+- `components/` — UI components
+- `hooks/` — Custom hooks (payment verification)
+- `lib/` — Utilities (Supabase client)
+- `public/` — Static assets (logos, images)
 
-## Deploy on Vercel
+## Admin Dashboard
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The admin UI lives at `/adminsinova`. The access password is currently hardcoded in `app/adminsinova/page.tsx`. Change this before deploying.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+This project is ready for Vercel or any Node.js host that supports Next.js. Ensure all environment variables are configured in your hosting provider.
+
+## Credits
+
+Built for the SINOVA'26 organizing team at SSTM.

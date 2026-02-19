@@ -25,7 +25,6 @@ export default function RegisterPage() {
   const isWaitlist = registeredTeams >= maxTeams;
   const registrationProgress = useMemo(() => (registeredTeams / maxTeams) * 100, [registeredTeams]);
 
-  // Sync count with database on load and in real-time
   useEffect(() => {
     const fetchTeamCount = async () => {
       try {
@@ -51,7 +50,8 @@ export default function RegisterPage() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const validateForm = (formData: FormData) => {
+  // Returns both isValid and the errors object so handleSubmit can scroll to first error
+  const validateForm = (formData: FormData): { isValid: boolean; validationErrors: Record<string, string> } => {
     const newErrors: Record<string, string> = {};
     let isValid = true;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,6 +60,13 @@ export default function RegisterPage() {
     const teamName = formData.get("teamName") as string;
     if (!teamName || teamName.length < 3) {
       newErrors["teamName"] = "Team name must be at least 3 characters.";
+      isValid = false;
+    }
+
+    // College name validation
+    const collegeName = formData.get("collegeName") as string;
+    if (!collegeName || collegeName.length < 3) {
+      newErrors["collegeName"] = "College name must be at least 3 characters.";
       isValid = false;
     }
 
@@ -90,7 +97,7 @@ export default function RegisterPage() {
     }
 
     setErrors(newErrors);
-    return isValid;
+    return { isValid, validationErrors: newErrors };
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,122 +121,131 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  
-  const formData = new FormData(e.currentTarget);
-  const pHash = verificationResult?.imageHash || null;
-  const transactionId = verificationResult?.details?.transactionIds?.[0] || null;
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const pHash = verificationResult?.imageHash || null;
+    const transactionId = verificationResult?.details?.transactionIds?.[0] || null;
 
-  if (validateForm(formData)) {
-    try {
-      // 1. ATOMIC SYNC: Re-check actual count right before insert to prevent overbooking
-      const { count: latestCount } = await supabase
-        .from('teams')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_waitlist', false);
-      
-      const finalCount = latestCount || 0;
-      const currentIsWaitlist = finalCount >= maxTeams;
-      const teamName = formData.get("teamName") as string;
-      
-      // Calculate next sequential number (only for confirmed teams)
-      const nextNumber = currentIsWaitlist ? null : finalCount + 1;
+    const { isValid, validationErrors } = validateForm(formData);
 
-      // 2. DUPLICATE CHECK: Verify Transaction ID (UTR) doesn't exist in DB
-      if (transactionId) {
-        const { data: existingTxn } = await supabase
+    if (isValid) {
+      try {
+        // 1. ATOMIC SYNC: Re-check actual count right before insert to prevent overbooking
+        const { count: latestCount } = await supabase
           .from('teams')
-          .select('team_number')
-          .eq('transaction_id', transactionId)
-          .maybeSingle();
+          .select('*', { count: 'exact', head: true })
+          .eq('is_waitlist', false);
+        
+        const finalCount = latestCount || 0;
+        const currentIsWaitlist = finalCount >= maxTeams;
+        const teamName = formData.get("teamName") as string;
+        const collegeName = formData.get("collegeName") as string;
+        
+        // Calculate next sequential number (only for confirmed teams)
+        const nextNumber = currentIsWaitlist ? null : finalCount + 1;
 
-        if (existingTxn) {
-          setDuplicateError({ 
-            show: true, 
-            msg: "This Transaction ID (UTR) has already been used by another team!" 
-          });
-          setIsSubmitting(false);
-          return;
+        // 2. DUPLICATE CHECK: Verify Transaction ID (UTR) doesn't exist in DB
+        if (transactionId) {
+          const { data: existingTxn } = await supabase
+            .from('teams')
+            .select('team_number')
+            .eq('transaction_id', transactionId)
+            .maybeSingle();
+
+          if (existingTxn) {
+            setDuplicateError({ 
+              show: true, 
+              msg: "This Transaction ID (UTR) has already been used by another team!" 
+            });
+            setIsSubmitting(false);
+            return;
+          }
         }
+
+        let publicUrl = null;
+
+        // 3. IMAGE COMPRESSION & STORAGE UPLOAD
+        if (!currentIsWaitlist && uploadedFile) {
+          const options = {
+            maxSizeMB: 0.8,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+          };
+
+          const compressedFile = await imageCompression(uploadedFile, options);
+          
+          const fileExt = uploadedFile.name.split('.').pop();
+          const fileName = `${currentIsWaitlist ? 'WL' : nextNumber}_${teamName.replace(/\s+/g, '_')}_${Date.now()}.${fileExt}`;
+          const filePath = `proofs/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('payment-proofs')
+            .upload(filePath, compressedFile);
+
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage
+            .from('payment-proofs')
+            .getPublicUrl(filePath);
+          
+          publicUrl = urlData.publicUrl;
+        }
+
+        // 4. DATABASE INSERTION
+        const members = Array.from({ length: teamSize }).map((_, i) => ({
+          name: formData.get(`member${i}_name`),
+          email: formData.get(`member${i}_email`),
+          phone: formData.get(`member${i}_phone`),
+          mealPreference: formData.get(`member${i}_meal`),
+        }));
+
+        const { data, error } = await supabase
+          .from('teams')
+          .insert([{
+            team_number: nextNumber,
+            team_name: teamName,
+            college_name: collegeName,       // <-- college name saved to DB
+            members: members,
+            payment_hash: pHash,
+            transaction_id: transactionId,
+            payment_proof_url: publicUrl,
+            payment_status: currentIsWaitlist ? 'waitlisted' : 'confirmed',
+            is_waitlist: currentIsWaitlist
+          }])
+          .select()
+          .single();
+
+        if (error) {
+          if (error.code === '23505') {
+            setDuplicateError({ show: true, msg: "Payment screenshot already used." });
+          } else throw error;
+        } else {
+          // 5. REDIRECT TO SUCCESS
+          const params = new URLSearchParams({ team_data: JSON.stringify(data) });
+          router.push(`/register/success?${params.toString()}`);
+        }
+
+      } catch (err) {
+        console.error("Submission Error:", err);
+        alert("Registration failed. Please check your network and try again.");
+      } finally {
+        setIsSubmitting(false);
       }
-
-      let publicUrl = null;
-
-      // 3. IMAGE COMPRESSION & STORAGE UPLOAD
-      if (!currentIsWaitlist && uploadedFile) {
-        // Options for compression (Target < 1MB for safety, well under your 2MB limit)
-        const options = {
-          maxSizeMB: 0.8,           // Aim for ~800KB
-          maxWidthOrHeight: 1920,  // Keep resolution high for manual verification
-          useWebWorker: true,
-        };
-
-        const compressedFile = await imageCompression(uploadedFile, options);
-        
-        // Define path: e.g., proofs/5_Team_Name.jpg
-        const fileExt = uploadedFile.name.split('.').pop();
-        const fileName = `${currentIsWaitlist ? 'WL' : nextNumber}_${teamName.replace(/\s+/g, '_')}_${Date.now()}.${fileExt}`;
-        const filePath = `proofs/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('payment-proofs')
-          .upload(filePath, compressedFile);
-
-        if (uploadError) throw uploadError;
-
-        // Get the accessible URL
-        const { data: urlData } = supabase.storage
-          .from('payment-proofs')
-          .getPublicUrl(filePath);
-        
-        publicUrl = urlData.publicUrl;
-      }
-
-      // 4. DATABASE INSERTION
-      const members = Array.from({ length: teamSize }).map((_, i) => ({
-        name: formData.get(`member${i}_name`),
-        email: formData.get(`member${i}_email`),
-        phone: formData.get(`member${i}_phone`),
-        mealPreference: formData.get(`member${i}_meal`),
-      }));
-
-      const { data, error } = await supabase
-        .from('teams')
-        .insert([{
-          team_number: nextNumber,
-          team_name: teamName,
-          members: members,
-          payment_hash: pHash,
-          transaction_id: transactionId,
-          payment_proof_url: publicUrl,
-          payment_status: currentIsWaitlist ? 'waitlisted' : 'confirmed',
-          is_waitlist: currentIsWaitlist
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        if (error.code === '23505') {
-          setDuplicateError({ show: true, msg: "Payment screenshot already used." });
-        } else throw error;
-      } else {
-        // 5. REDIRECT TO SUCCESS
-        const params = new URLSearchParams({ team_data: JSON.stringify(data) });
-        router.push(`/register/success?${params.toString()}`);
-      }
-
-    } catch (err) {
-      console.error("Submission Error:", err);
-      alert("Registration failed. Please check your network and try again.");
-    } finally {
+    } else {
       setIsSubmitting(false);
+      // Scroll to the first errored field by its name attribute, or data-field for custom elements
+      const firstErrorKey = Object.keys(validationErrors)[0];
+      const el =
+        document.querySelector<HTMLElement>(`[name="${firstErrorKey}"]`) ||
+        document.querySelector<HTMLElement>(`[data-field="${firstErrorKey}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => el.focus(), 400);
+      }
     }
-  } else {
-    setIsSubmitting(false);
-    document.querySelector(".text-red-500")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-};
+  };
 
   return (
     <main className="relative min-h-screen bg-[#020617] text-white py-24 px-6 overflow-hidden">
@@ -277,15 +293,26 @@ export default function RegisterPage() {
               <h2 className="text-xl font-bold uppercase tracking-wider mb-1">Step 1: Enter Team Details</h2>
             </div>
             
+            {/* Team Name + College Name side by side, Team Size below */}
             <div className="grid grid-cols-1 mt-2 md:grid-cols-2 gap-6">
               <InputField 
                 label="Team Name" 
                 icon={<ShieldCheck size={18} />} 
-                placeholder="e.g. Neural Ninjas" 
+                placeholder="e.g. Hackers United" 
                 name="teamName" 
                 error={errors.teamName}
               />
               
+              <InputField
+                label="College Name"
+                icon={<Users size={18} />}
+                placeholder="e.g. SCMS School of Technology and Management"
+                name="collegeName"
+                error={errors.collegeName}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="relative group w-full">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold ml-1 flex items-center gap-2 mb-3">
                   <Users size={16} className="text-blue-500" /> Team Size (2-4 Members)
@@ -394,14 +421,14 @@ export default function RegisterPage() {
                   
                   <div className="bg-white p-4 rounded-3xl flex flex-col items-center gap-3 w-fit mx-auto shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                     <Image 
-                      src="/sinova-logo.png" 
+                      src="/payment_qr.jpeg" 
                       alt="Payment QR Code" 
                       width={220} 
                       height={220}
-                      className="rounded-xl object-cover object-bottom h-48"
+                      className="rounded-xl object-cover object-bottom h-56"
                     />
                     <div className="bg-blue-600 px-4 py-1 rounded-full">
-                      <p className="text-white font-black text-[10px] uppercase tracking-tighter">Official SINOVA'26 UPI</p>
+                      <p className="text-white font-black text-[10px] uppercase tracking-tighter">Official SINOVA&apos;26 UPI</p>
                     </div>
                   </div>
                 </div>
@@ -417,13 +444,16 @@ export default function RegisterPage() {
                 <div className="space-y-6">
                   <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Upload Transaction Screenshot</label>
                   
-                  <div className={`group relative border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer bg-black/20 
-                    ${errors.paymentProof 
-                      ? "border-red-500/50 bg-red-500/5 hover:border-red-500" 
-                      : verificationResult?.status === 'VERIFIED'
-                      ? "border-green-500/50 bg-green-500/5"
-                      : "border-white/10 hover:border-cyan-400/50"
-                    }`}
+                  {/* data-field lets the scroll-to-error logic find this element */}
+                  <div
+                    data-field="paymentProof"
+                    className={`group relative border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer bg-black/20 
+                      ${errors.paymentProof 
+                        ? "border-red-500/50 bg-red-500/5 hover:border-red-500" 
+                        : verificationResult?.status === 'VERIFIED'
+                        ? "border-green-500/50 bg-green-500/5"
+                        : "border-white/10 hover:border-cyan-400/50"
+                      }`}
                   >
                     <input 
                       type="file" 
@@ -579,6 +609,7 @@ export default function RegisterPage() {
                     </div>
                   )}
                 </div>
+
                 <div>
                   <p className="text-xs text-gray-400 -mt-6">
                     If you are unable to verify the payment screenshot, please reach out to our 
@@ -591,6 +622,7 @@ export default function RegisterPage() {
                     </NextLink>
                   </p>
                 </div>
+
                 <div className="pt-6 mt-4">
                   <button 
                     type="submit"
@@ -605,10 +637,10 @@ export default function RegisterPage() {
           )}
         </form>
       </div>
+
       {duplicateError.show && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/80 animate-in fade-in duration-300">
           <div className="max-w-md w-full bg-[#020617] border-2 border-red-500/50 rounded-3xl p-8 space-y-6 shadow-[0_0_50px_rgba(239,68,68,0.2)] text-center relative overflow-hidden">
-            {/* Background Warning Pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(circle_at_center,red_0,transparent_100%)]" />
             
             <div className="relative z-10">
