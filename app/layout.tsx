@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "SINOVA26",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://sinova26.vercel.app/og-image.png",
         width: 1200,
         height: 630,
         alt: "SINOVA26 Hackathon",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SINOVA26",
     description: "24 Hour National Level Hackathon",
-    images: ["/og-image.png"],
+    images: ["https://sinova26.vercel.app/og-image.png"],
   },
 
   alternates: {
