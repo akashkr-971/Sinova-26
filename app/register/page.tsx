@@ -432,6 +432,11 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 </div>
+                <div className="flex justify-center w-full">
+                  <a href="upi://pay?pa=msscmsschooloftechnologyandmanagementmca.eazypay@icici&pn=SCMS%20School%20of%20Technology%20and%20Management&am=400&cu=INR"
+                    className="inline-flex items-center justify-center px-9 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200"
+                  >Pay ₹400 via UPI using mobile phone</a>  
+                </div>
               </section>
 
               {/* SECTION 3: PROOF UPLOAD WITH VERIFICATION */}
