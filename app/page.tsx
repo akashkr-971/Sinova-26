@@ -126,7 +126,7 @@ export default function HomePage() {
               
               {/* 2nd Place */}
               <div className="order-2 md:order-1 relative group/card">
-                <div className="absolute -inset-0.5 bg-gradient-to-b from-blue-500/20 to-transparent rounded-2xl blur-sm opacity-0 group-hover/card:opacity-100 transition" />
+                <div className="absolute -inset-0.5 bg-linear-to-b from-blue-500/20 to-transparent rounded-2xl blur-sm opacity-0 group-hover/card:opacity-100 transition" />
                 <div className="relative p-8 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-4 hover:-translate-y-2 transition-transform duration-300">
                   <Medal size={40} className="text-gray-300 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
                   <div>
@@ -142,7 +142,7 @@ export default function HomePage() {
                 {/* Winner Glow */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-cyan-400/20 rounded-full blur-[80px]" />
                 
-                <div className="relative p-10 bg-gradient-to-b from-blue-600/20 to-black/40 border-2 border-cyan-400/50 rounded-3xl flex flex-col items-center gap-6 shadow-[0_0_50px_rgba(34,211,238,0.2)] backdrop-blur-sm transform hover:scale-105 transition-all duration-500">
+                <div className="relative p-10 bg-linear-to-b from-blue-600/20 to-black/40 border-2 border-cyan-400/50 rounded-3xl flex flex-col items-center gap-6 shadow-[0_0_50px_rgba(34,211,238,0.2)] backdrop-blur-sm transform hover:scale-105 transition-all duration-500">
                   <div className="relative">
                     <Crown size={64} className="text-yellow-400 fill-yellow-400/20 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)] animate-bounce" />
                   </div>
@@ -158,7 +158,7 @@ export default function HomePage() {
 
               {/* 3rd Place */}
               <div className="order-3 md:order-3 relative group/card">
-                <div className="absolute -inset-0.5 bg-gradient-to-b from-blue-500/20 to-transparent rounded-2xl blur-sm opacity-0 group-hover/card:opacity-100 transition" />
+                <div className="absolute -inset-0.5 bg-linear-to-b from-blue-500/20 to-transparent rounded-2xl blur-sm opacity-0 group-hover/card:opacity-100 transition" />
                 <div className="relative p-8 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-4 hover:-translate-y-2 transition-transform duration-300">
                   <Medal size={40} className="text-amber-700 drop-shadow-[0_0_10px_rgba(180,83,9,0.5)]" />
                   <div>
@@ -176,7 +176,7 @@ export default function HomePage() {
       <section className="relative py-20 overflow-hidden border-t border-white/5 bg-[#020617]">
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(6,182,212,0.08),transparent_50%)]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-px bg-linear-to-r from-transparent via-cyan-500/30 to-transparent" />
       
       {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -192,7 +192,7 @@ export default function HomePage() {
             {/* Enhanced Icon Badge */}
             <div className="relative">
               <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-full animate-pulse" />
-              <div className="relative p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+              <div className="relative p-4 rounded-2xl bg-linear-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
                 <Award className="text-cyan-400" size={36} />
               </div>
             </div>
@@ -200,11 +200,11 @@ export default function HomePage() {
             {/* Title with Better Hierarchy */}
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
-                <div className="h-px w-12 bg-gradient-to-r from-transparent to-cyan-500/50" />
+                <div className="h-px w-12 bg-linear-to-r from-transparent to-cyan-500/50" />
                 <p className="text-xs font-mono tracking-[0.3em] text-cyan-400/80 uppercase">
                   Proudly Supported By
                 </p>
-                <div className="h-px w-12 bg-gradient-to-l from-transparent to-cyan-500/50" />
+                <div className="h-px w-12 bg-linear-to-l from-transparent to-cyan-500/50" />
               </div>
               
               <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white uppercase">
@@ -221,7 +221,7 @@ export default function HomePage() {
                     }}>
                     Sponsors
                   </span>
-                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500/0 via-cyan-500/50 to-cyan-500/0" />
+                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-linear-to-r from-cyan-500/0 via-cyan-500/50 to-cyan-500/0" />
                 </span>
               </h2>
 
@@ -242,10 +242,10 @@ export default function HomePage() {
                 className="group/card relative"
               >
                 {/* Glow Effect */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                <div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
                 
                 {/* Card */}
-                <div className="relative h-48 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-2xl flex flex-col items-center justify-center p-8 backdrop-blur-sm transition-all duration-500 hover:border-cyan-400/50 hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden">
+                <div className="relative h-48 bg-linear-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-2xl flex flex-col items-center justify-center p-8 backdrop-blur-sm transition-all duration-500 hover:border-cyan-400/50 hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden">
                   
                   {/* Subtle Grid Pattern */}
                   <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:12px_12px]" />
@@ -263,7 +263,7 @@ export default function HomePage() {
                     </div>
                     
                     {/* Divider */}
-                    <div className="w-12 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
+                    <div className="w-12 h-px bg-linear-to-r from-transparent via-cyan-400/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
                     
                     {/* Sponsor Name - Always Visible but Enhanced on Hover */}
                     <div className="text-center space-y-1 transition-all duration-300 group-hover/card:scale-105">
@@ -324,7 +324,7 @@ export default function HomePage() {
 
         {/* Thank You Message */}
         <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-full">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-full">
             <Handshake className="text-cyan-400" size={18} />
             <p className="text-sm text-gray-400">
               Thank you to all our sponsors for making SINOVA possible
