@@ -111,9 +111,14 @@ export default function RegisterPage() {
 
   const handleVerifyPayment = async () => {
     if (!uploadedFile) return;
-    const teamName = (document.querySelector('input[name="teamName"]') as HTMLInputElement)?.value;
+    const teamNameEl = document.querySelector<HTMLInputElement>('input[name="teamName"]');
+    const teamName = teamNameEl?.value;
     if (!teamName) {
       setErrors(prev => ({ ...prev, teamName: "Please enter team name first" }));
+      if (teamNameEl) {
+        teamNameEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => teamNameEl.focus(), 400);
+      }
       return;
     }
     const result = await verifyPayment(uploadedFile, teamName);
