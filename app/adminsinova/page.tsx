@@ -58,6 +58,7 @@ export default function AdminDashboard() {
       t.members.map((m: any, index: number) => ({
         "Team #": t.team_number || "WL",
         "Team Name": t.team_name,
+        "College Name": t.college_name,
         "Name": m.name,
         "Designation": index === 0 ? "Leader" : "Member",
         "Phone": m.phone,
@@ -155,6 +156,7 @@ export default function AdminDashboard() {
                   <th className="px-6 py-4">ID</th>
                   <th className="px-6 py-4">Team Name</th>
                   <th className="px-6 py-4">Member Roster</th>
+                  <th className="px-6 py-4">College Name</th>
                   <th className="px-6 py-4">UTR Number</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Action</th>
@@ -181,6 +183,7 @@ export default function AdminDashboard() {
                         ))}
                       </div>
                     </td>
+                    <td className="px-6 py-4 font-mono text-xs text-gray-400">{team.college_name || '---'}</td>
                     <td className="px-6 py-4 font-mono text-xs text-gray-400">{team.transaction_id || '---'}</td>
                     <td className="px-6 py-4">
                       <span className={`text-[9px] px-2 py-1 rounded-md font-bold uppercase ${team.is_waitlist ? 'bg-orange-500/10 text-orange-400' : 'bg-green-500/10 text-green-400'}`}>
