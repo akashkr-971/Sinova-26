@@ -2,6 +2,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sinova26.vercel.app"),
@@ -87,62 +89,67 @@ export default function RootLayout({
         <main className="min-h-screen">{children}</main>
         <Footer />
 
+        {/* Vercel Analytics */}
+        <Analytics />
+        <SpeedInsights />
+
+
         {/* Structured Data – Event Schema */}
         <script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{
-    __html: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Event",
-      name: "SINOVA26 – 24 Hour National Level Hackathon",
-      description:
-        "SINOVA26 is a 24 Hour National Level Hackathon organized by SCMS School of Technology and Management (SSTM), Kerala.",
-      startDate: "2026-03-17T10:00:00+05:30",
-      endDate: "2026-03-18T10:00:00+05:30",
-      eventStatus: "https://schema.org/EventScheduled",
-      eventAttendanceMode:
-        "https://schema.org/OfflineEventAttendanceMode",
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Event",
+              name: "SINOVA26 – 24 Hour National Level Hackathon",
+              description:
+                "SINOVA26 is a 24 Hour National Level Hackathon organized by SCMS School of Technology and Management (SSTM), Kerala.",
+              startDate: "2026-03-17T10:00:00+05:30",
+              endDate: "2026-03-18T10:00:00+05:30",
+              eventStatus: "https://schema.org/EventScheduled",
+              eventAttendanceMode:
+                "https://schema.org/OfflineEventAttendanceMode",
 
-      image: [
-        "https://sinova26.vercel.app/og-image.png"
-      ],
+              image: [
+                "https://sinova26.vercel.app/og-image.png"
+              ],
 
-      location: {
-        "@type": "Place",
-        name: "SCMS School of Technology and Management",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Prathap Nagar, Muttom",
-          addressLocality: "Aluva",
-          addressRegion: "Kerala",
-          postalCode: "683106",
-          addressCountry: "IN",
-        },
-      },
+              location: {
+                "@type": "Place",
+                name: "SCMS School of Technology and Management",
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: "Prathap Nagar, Muttom",
+                  addressLocality: "Aluva",
+                  addressRegion: "Kerala",
+                  postalCode: "683106",
+                  addressCountry: "IN",
+                },
+              },
 
-      organizer: {
-        "@type": "Organization",
-        name: "SINOVA26",
-        url: "https://sinova26.vercel.app",
-        logo: "https://sinova26.vercel.app/sinova-logo.png",
-      },
+              organizer: {
+                "@type": "Organization",
+                name: "SINOVA26",
+                url: "https://sinova26.vercel.app",
+                logo: "https://sinova26.vercel.app/sinova-logo.png",
+              },
 
-      performer: {
-        "@type": "Organization",
-        name: "Department of Computer Applications – SCMS SSTM"
-      },
+              performer: {
+                "@type": "Organization",
+                name: "Department of Computer Applications – SCMS SSTM"
+              },
 
-      offers: {
-        "@type": "Offer",
-        url: "https://sinova26.vercel.app/register",
-        price: "400",
-        priceCurrency: "INR",
-        availability: "https://schema.org/InStock",
-        validFrom: "2025-12-01T00:00:00+05:30"
-      }
-    }),
-  }}
-/>
+              offers: {
+                "@type": "Offer",
+                url: "https://sinova26.vercel.app/register",
+                price: "400",
+                priceCurrency: "INR",
+                availability: "https://schema.org/InStock",
+                validFrom: "2025-12-01T00:00:00+05:30"
+              }
+            }),
+          }}
+        />
       </body>
     </html>
   );
