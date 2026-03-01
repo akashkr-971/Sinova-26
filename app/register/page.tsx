@@ -268,18 +268,8 @@ export default function RegisterPage() {
               <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-cyan-400">
                 SINOVA<span className="text-white">'26</span>
               </h1>
-              <p className="text-gray-400 text-sm font-mono tracking-widest uppercase mt-2">Registration Status</p>
+              <p className="text-gray-400 text-sm font-mono tracking-widest uppercase mt-2">Registration Form</p>
             </div>
-            <div className="text-right">
-              <span className="text-2xl font-black text-white">{registeredTeams}/{maxTeams}</span>
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest">Teams Joined</p>
-            </div>
-          </div>
-          <div className="h-3 w-full bg-white/5 rounded-full border border-white/10 overflow-hidden">
-            <div 
-              className={`h-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(34,211,238,0.5)] ${isWaitlist ? 'bg-orange-500' : 'bg-linear-to-r from-blue-600 to-cyan-400'}`}
-              style={{ width: `${Math.min(registrationProgress, 100)}%` }}
-            />
           </div>
           {isWaitlist && (
             <div className="flex items-center justify-center gap-2 text-orange-500 bg-orange-500/10 py-2 rounded-lg border border-orange-500/20 animate-pulse">
