@@ -27,16 +27,12 @@ export default function CheckStatusPage() {
     setResult(null);
 
     try {
-      // 1. Determine if query is a Number (Team ID) or String (Email)
       const isNumber = !isNaN(Number(query));
-      
       let supabaseQuery = supabase.from("teams").select("*");
 
       if (isNumber) {
         supabaseQuery = supabaseQuery.eq("team_number", Number(query));
       } else {
-        // Search by looking into the members JSONB array for the leader's email (index 0)
-        // Or you can use the syntax to search the entire array if needed
         supabaseQuery = supabaseQuery.filter('members->0->>email', 'eq', query.toLowerCase().trim());
       }
 
@@ -90,7 +86,7 @@ export default function CheckStatusPage() {
 
         {/* Centered Search Form */}
         <div className="w-full max-w-2xl relative group mb-16">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
+          <div className="absolute -inset-1 bg-linear-to-r from-blue-600 via-cyan-400 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
           <form onSubmit={handleSearch} className="relative bg-black/60 border border-white/10 rounded-2xl p-2 flex backdrop-blur-xl justify-between items-center">
             <div className="flex items-center pl-6 text-gray-500 px-4">
               <Fingerprint size={20} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { User, Users, ShieldCheck, Utensils, CreditCard, ClipboardList, AlertTriangle, Upload, AlertCircle, CheckCircle2, Loader2, Link } from "lucide-react";
+import { User, Users, ShieldCheck, Utensils, CreditCard, ClipboardList, AlertTriangle, Upload, AlertCircle, CheckCircle2, Loader2, Link, Wifi, WifiOff, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { usePaymentVerification } from "../../hooks/usePaymentVerification"
 import { supabase } from "@/lib/supabase";
@@ -9,6 +9,48 @@ import { useRouter } from "next/navigation";
 import imageCompression from 'browser-image-compression';
 import NextLink from "next/link";
 
+// ─── Supabase Connectivity Check ─────────────────────────────────────────────
+type ConnectionStatus = "checking" | "connected" | "blocked";
+
+// Extract the Supabase project URL from the env var so we can raw-fetch it.
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://icfbhvahqnaklqotvtjc.supabase.co";
+
+function useSupabaseConnection() {
+  const [status, setStatus] = useState<ConnectionStatus>("checking");
+
+  const check = async () => {
+    setStatus("checking");
+    try {
+      // Use plain fetch — this reliably throws on ERR_INTERNET_DISCONNECTED /
+      // ISP-level blocks, unlike the Supabase JS client which can silently swallow errors.
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      // HEAD request to the REST root — tiny payload, no auth needed.
+      // Any HTTP response (even 401/400) means the domain is reachable.
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+        method: "HEAD",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      setStatus([200, 400, 401, 404].includes(res.status) ? "connected" : "blocked");
+    } catch {
+      // fetch() throws a TypeError on network-level failures (disconnect, timeout, ISP block)
+      setStatus("blocked");
+    }
+  };
+
+  useEffect(() => { check(); }, []);
+
+  return { status, retry: check };
+}
+
+
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function RegisterPage() {
   const router = useRouter();
   const [teamSize, setTeamSize] = useState(2);
@@ -21,6 +63,7 @@ export default function RegisterPage() {
   const [duplicateError, setDuplicateError] = useState<{show: boolean, msg: string}>({ show: false, msg: "" });
   
   const { verifyPayment, isVerifying, progress } = usePaymentVerification();
+  const { status: connStatus, retry: retryConnection } = useSupabaseConnection();
 
   const isWaitlist = registeredTeams >= maxTeams;
   const registrationProgress = useMemo(() => (registeredTeams / maxTeams) * 100, [registeredTeams]);
@@ -211,7 +254,7 @@ export default function RegisterPage() {
           .insert([{
             team_number: nextNumber,
             team_name: teamName,
-            college_name: collegeName,       // <-- college name saved to DB
+            college_name: collegeName,
             members: members,
             payment_hash: pHash,
             transaction_id: transactionId,
@@ -254,6 +297,7 @@ export default function RegisterPage() {
 
   return (
     <main className="relative min-h-screen bg-[#020617] text-white py-24 px-6 overflow-hidden">
+
       {/* Background Decor */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
@@ -261,16 +305,71 @@ export default function RegisterPage() {
       </div>
 
       <div className="max-w-4xl mx-auto space-y-12">
-        {/* Registration Progress Bar */}
+        {/* Header */}
         <div className="space-y-4">
           <div className="flex justify-between items-end">
             <div>
               <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-cyan-400">
-                SINOVA<span className="text-white">'26</span>
+                SINOVA<span className="text-white">&apos;26</span>
               </h1>
               <p className="text-gray-400 text-sm font-mono tracking-widest uppercase mt-2">Registration Form</p>
             </div>
           </div>
+
+          {/* ── Inline Connection Status Bar ── */}
+          {connStatus === "checking" && (
+            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 px-5 py-4 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-2 text-cyan-400 font-semibold">
+                  <Loader2 size={13} className="animate-spin" />
+                  Checking server connection...
+                </span>
+                <span className="text-gray-500 font-mono">Please wait</span>
+              </div>
+              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full w-1/2 bg-cyan-500 rounded-full animate-pulse" />
+              </div>
+            </div>
+          )}
+
+          {connStatus === "connected" && (
+            <div className="rounded-2xl border border-green-500/20 bg-green-500/5 px-5 py-3 flex items-center gap-2">
+              <CheckCircle2 size={14} className="text-green-400 shrink-0" />
+              <p className="text-xs text-green-400 font-semibold">Server connected — you&apos;re good to register</p>
+            </div>
+          )}
+
+          {connStatus === "blocked" && (
+            <div className="rounded-2xl border border-orange-500/30 bg-orange-500/5 px-5 py-4 space-y-3">
+              {/* Top row */}
+              <div className="flex items-start gap-3">
+                <WifiOff size={18} className="text-orange-400 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-orange-400">Server unreachable — ISP may be blocking our database</p>
+                  <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                    This is a known issue with some Indian providers (BSNL, Airtel, JioFiber). You can still fill in the form, but <span className="text-white font-semibold">submission will be blocked</span> until the connection is restored.
+                  </p>
+                </div>
+              </div>
+              {/* Fix steps */}
+              <div className="bg-black/30 rounded-xl px-4 py-3 space-y-1.5 text-xs text-gray-400">
+                <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">How to fix:</p>
+                <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">①</span> Switch to <span className="text-white font-semibold ml-1">Mobile Data / Hotspot</span></p>
+                <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">②</span> Try a different Wi-Fi network</p>
+                <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">③</span> Enable a VPN then retry</p>
+              </div>
+              {/* Retry button */}
+              <button
+                type="button"
+                onClick={retryConnection}
+                className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-400 text-black font-black italic py-3 rounded-xl transition-all text-xs uppercase tracking-widest"
+              >
+                <RefreshCw size={14} />
+                Retry Connection
+              </button>
+            </div>
+          )}
+
           {isWaitlist && (
             <div className="flex items-center justify-center gap-2 text-orange-500 bg-orange-500/10 py-2 rounded-lg border border-orange-500/20 animate-pulse">
               <AlertTriangle size={16} />
@@ -381,10 +480,10 @@ export default function RegisterPage() {
               <div className="pt-6 mt-4">
                 <button 
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-white p-4 text-black font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(234,88,12,0.4)] active:scale-95 disabled:opacity-70"
+                  disabled={isSubmitting || connStatus !== "connected"}
+                  className="w-full bg-white p-4 text-black font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(234,88,12,0.4)] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "VALIDATING..." : "JOIN WAITLIST (NO PAYMENT)"}
+                  {isSubmitting ? "VALIDATING..." : connStatus === "checking" ? "CHECKING CONNECTION..." : connStatus === "blocked" ? "NO CONNECTION — FIX NETWORK FIRST" : "JOIN WAITLIST (NO PAYMENT)"}
                 </button>
               </div>
             )}
@@ -626,10 +725,10 @@ export default function RegisterPage() {
                 <div className="pt-6 mt-4">
                   <button 
                     type="submit"
-                    disabled={isSubmitting || !verificationResult || verificationResult.status !== 'VERIFIED' && verificationResult.status !== 'REVIEW'}
+                    disabled={isSubmitting || connStatus !== "connected" || (!verificationResult || (verificationResult.status !== 'VERIFIED' && verificationResult.status !== 'REVIEW'))}
                     className="w-full bg-blue-600 p-4 hover:bg-white hover:text-black text-white font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
                   >
-                    {isSubmitting ? "SUBMITTING..." : "COMPLETE REGISTRATION"}
+                    {isSubmitting ? "SUBMITTING..." : connStatus === "checking" ? "CHECKING CONNECTION..." : connStatus === "blocked" ? "NO CONNECTION — FIX NETWORK FIRST" : "COMPLETE REGISTRATION"}
                   </button>
                 </div>
               </section>
