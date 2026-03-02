@@ -133,9 +133,6 @@ export default function RegisterPage() {
       if (!uploadedFile) {
         newErrors["paymentProof"] = "You must upload the payment screenshot.";
         isValid = false;
-      } else if (!verificationResult || (verificationResult.status !== 'VERIFIED' && verificationResult.status !== 'REVIEW')) {
-        newErrors["paymentProof"] = "Please verify your payment screenshot first.";
-        isValid = false;
       }
     }
 
@@ -586,7 +583,7 @@ export default function RegisterPage() {
                   )}
 
                   {/* Verification Button */}
-                  {uploadedFile && !verificationResult && (
+                  {false &&uploadedFile && !verificationResult && (
                     <button
                       type="button"
                       onClick={handleVerifyPayment}
@@ -726,7 +723,7 @@ export default function RegisterPage() {
                 <div className="pt-6 mt-4">
                   <button 
                     type="submit"
-                    disabled={isSubmitting || connStatus !== "connected" || (!verificationResult || (verificationResult.status !== 'VERIFIED' && verificationResult.status !== 'REVIEW'))}
+                    disabled={isSubmitting || connStatus !== "connected" }
                     className="w-full bg-blue-600 p-4 hover:bg-white hover:text-black text-white font-black italic py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(37,99,235,0.4)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
                   >
                     {isSubmitting ? "SUBMITTING..." : connStatus === "checking" ? "CHECKING CONNECTION..." : connStatus === "blocked" ? "NO CONNECTION — FIX NETWORK FIRST" : "COMPLETE REGISTRATION"}
