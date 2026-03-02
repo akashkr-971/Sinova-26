@@ -355,7 +355,7 @@ export default function RegisterPage() {
               <div className="bg-black/30 rounded-xl px-4 py-3 space-y-1.5 text-xs text-gray-400">
                 <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">How to fix:</p>
                 <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">①</span> Switch to <span className="text-white font-semibold ml-1">Mobile Data / Hotspot</span></p>
-                <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">②</span> Try a different Wi-Fi network</p>
+                <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">②</span> Try a different Wi-Fi network<span className="text-white font-semibold ml-1">Main issue is with jio ISP change to another network</span></p>
                 <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">③</span> Enable a VPN then retry</p>
                 <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">④</span> If the issue still occurs take the screenshot of the form along with the payment and send to the coordinator we will register from our side</p>
               </div>
