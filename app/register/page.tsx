@@ -357,6 +357,7 @@ export default function RegisterPage() {
                 <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">①</span> Switch to <span className="text-white font-semibold ml-1">Mobile Data / Hotspot</span></p>
                 <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">②</span> Try a different Wi-Fi network</p>
                 <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">③</span> Enable a VPN then retry</p>
+                <p className="flex items-center gap-2"><span className="text-orange-400 font-bold">④</span> If the issue still occurs take the screenshot of the form along with the payment and send to the coordinator we will register from our side</p>
               </div>
               {/* Retry button */}
               <button
