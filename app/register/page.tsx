@@ -368,6 +368,26 @@ export default function RegisterPage() {
             </div>
           )}
 
+          <div className="w-full mx-auto mt-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-5 shadow-[0_0_30px_rgba(239,68,68,0.12)] backdrop-blur-sm">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 rounded-full bg-red-500/20 p-2 text-red-400">
+                <AlertTriangle size={16} />
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm md:text-base font-bold text-red-300">
+                  Registrations Closed or These Colleges: The following colleges have reached their maximum participation limit.
+                </p>
+                <p className="text-xs md:text-sm text-gray-300 leading-relaxed">
+                  Further registrations from these institutions will not be accepted.
+                </p>
+                <p className="text-sm md:text-base font-semibold text-red-200">
+                  CUSAT, College of Engineering Trivandrum, Providence College of Engineering,
+                  Nirmala College of Engineering, Christ College of Engineering.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {isWaitlist && (
             <div className="flex items-center justify-center gap-2 text-orange-500 bg-orange-500/10 py-2 rounded-lg border border-orange-500/20 animate-pulse">
               <AlertTriangle size={16} />
