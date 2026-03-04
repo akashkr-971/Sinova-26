@@ -170,26 +170,30 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     
     const formData = new FormData(e.currentTarget);
-    const pHash = verificationResult?.imageHash || null;
     const transactionId = verificationResult?.details?.transactionIds?.[0] || null;
 
     const { isValid, validationErrors } = validateForm(formData);
 
     if (isValid) {
       try {
-        // 1. ATOMIC SYNC: Re-check actual count right before insert to prevent overbooking
-        const { count: latestCount } = await supabase
+        // 1. ATOMIC SYNC: Get the max team_number to ensure uniqueness
+        const { data: maxTeamData } = await supabase
+          .from('teams')
+          .select('team_number')
+          .order('team_number', { ascending: false })
+          .limit(1)
+          .single();
+        
+        const maxTeamNumber = maxTeamData?.team_number || 0;
+        const nextNumber = maxTeamNumber + 1;
+        const confirmed = await supabase
           .from('teams')
           .select('*', { count: 'exact', head: true })
           .eq('is_waitlist', false);
-        
-        const finalCount = latestCount || 0;
-        const currentIsWaitlist = finalCount >= maxTeams;
+        const confirmedCount = confirmed.count || 0;
+        const currentIsWaitlist = confirmedCount >= maxTeams;
         const teamName = formData.get("teamName") as string;
         const collegeName = formData.get("collegeName") as string;
-        
-        // Calculate next sequential number (only for confirmed teams)
-        const nextNumber = currentIsWaitlist ? null : finalCount + 1;
 
         // 2. DUPLICATE CHECK: Verify Transaction ID (UTR) doesn't exist in DB
         if (transactionId) {
@@ -253,7 +257,6 @@ export default function RegisterPage() {
             team_name: teamName,
             college_name: collegeName,
             members: members,
-            payment_hash: pHash,
             transaction_id: transactionId,
             payment_proof_url: publicUrl,
             payment_status: currentIsWaitlist ? 'waitlisted' : 'confirmed',
@@ -263,9 +266,7 @@ export default function RegisterPage() {
           .single();
 
         if (error) {
-          if (error.code === '23505') {
-            setDuplicateError({ show: true, msg: "Payment screenshot already used." });
-          } else throw error;
+          throw error;
         } else {
           // 5. REDIRECT TO SUCCESS
           const params = new URLSearchParams({ team_data: JSON.stringify(data) });
