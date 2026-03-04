@@ -375,7 +375,7 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2">
                 <p className="text-sm md:text-base font-bold text-red-300">
-                  Registrations Closed or These Colleges: The following colleges have reached their maximum participation limit.
+                  Registrations Closed for These Colleges: The following colleges have reached their maximum participation limit.
                 </p>
                 <p className="text-xs md:text-sm text-gray-300 leading-relaxed">
                   Further registrations from these institutions will not be accepted.
