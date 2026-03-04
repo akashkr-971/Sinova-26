@@ -15,13 +15,22 @@ export default function AdminDashboard() {
   const [teams, setTeams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<'all' | 'confirmed' | 'waitlist'>('all');
   const [selectedTeam, setSelectedTeam] = useState<any>(null); 
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   const [totalParticipants, setTotalParticipants] = useState(0);
+  const [confirmedParticipants, setConfirmedParticipants] = useState(0);
+  const [waitlistParticipants, setWaitlistParticipants] = useState(0);
   const [vegCount, setVegCount] = useState(0);
   const [nonVegCount, setNonVegCount] = useState(0);
+  const [confirmedVeg, setConfirmedVeg] = useState(0);
+  const [confirmedNonVeg, setConfirmedNonVeg] = useState(0);
+  const [waitlistVeg, setWaitlistVeg] = useState(0);
+  const [waitlistNonVeg, setWaitlistNonVeg] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalTeams, setTotalTeams] = useState(0);
+  const [confirmedTeams, setConfirmedTeams] = useState(0);
+  const [waitlistTeams, setWaitlistTeams] = useState(0);
 
   const ADMIN_PASSWORD = "SINOVA26ADMIN"; 
 
@@ -38,11 +47,36 @@ export default function AdminDashboard() {
 
     if (!error && data) {
       setTeams(data);
-      setTotalParticipants(data.reduce((acc, t) => acc + (t.members?.length || 0), 0));
-      setVegCount(data.reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0));
-      setNonVegCount(data.reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0));
-      setTotalRevenue(data.filter(t => !t.is_waitlist).length * 400);
+      
+      const confirmed = data.filter(t => !t.is_waitlist);
+      const waitlisted = data.filter(t => t.is_waitlist);
+      
+      const confirmedCount = confirmed.length;
+      const waitlistCount = waitlisted.length;
+      
+      const confirmedParticipantCount = confirmed.reduce((acc, t) => acc + (t.members?.length || 0), 0);
+      const waitlistParticipantCount = waitlisted.reduce((acc, t) => acc + (t.members?.length || 0), 0);
+      const totalParticipantCount = confirmedParticipantCount + waitlistParticipantCount;
+      
+      const confirmedVegCount = confirmed.reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0);
+      const confirmedNonVegCount = confirmed.reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0);
+      const waitlistVegCount = waitlisted.reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0);
+      const waitlistNonVegCount = waitlisted.reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0);
+      
+      setConfirmedTeams(confirmedCount);
+      setWaitlistTeams(waitlistCount);
       setTotalTeams(data.length);
+      setConfirmedParticipants(confirmedParticipantCount);
+      setWaitlistParticipants(waitlistParticipantCount);
+      setTotalParticipants(totalParticipantCount);
+      
+      setConfirmedVeg(confirmedVegCount);
+      setConfirmedNonVeg(confirmedNonVegCount);
+      setWaitlistVeg(waitlistVegCount);
+      setWaitlistNonVeg(waitlistNonVegCount);
+      setVegCount(confirmedVegCount + waitlistVegCount);
+      setNonVegCount(confirmedNonVegCount + waitlistNonVegCount);
+      setTotalRevenue(confirmedCount * 400);
     }
     setLoading(false);
   }
@@ -54,41 +88,93 @@ export default function AdminDashboard() {
   };
 
   const exportToExcel = () => {
-    const detailedData = teams.flatMap(t => 
-      t.members.map((m: any, index: number) => ({
-        "Team #": t.team_number || "WL",
-        "Team Name": t.team_name,
-        "College Name": t.college_name,
-        "Name": m.name,
-        "Designation": index === 0 ? "Leader" : "Member",
-        "Phone": m.phone,
-        "Email": m.email,
-        "Meal Preference": m.mealPreference,
-        "UTR ID": t.transaction_id,
-        "Status": t.is_waitlist ? "Waitlist" : "Confirmed"
-      }))
-    );
+    const confirmedTeamsData = teams
+      .filter(t => !t.is_waitlist)
+      .flatMap(t => 
+        t.members.map((m: any, index: number) => ({
+          "Team #": t.team_number,
+          "Team Name": t.team_name,
+          "College Name": t.college_name,
+          "Name": m.name,
+          "Designation": index === 0 ? "Leader" : "Member",
+          "Phone": m.phone,
+          "Email": m.email,
+          "Meal Preference": m.mealPreference,
+          "UTR ID": t.transaction_id,
+        }))
+      );
+
+    const waitlistTeamsData = teams
+      .filter(t => t.is_waitlist)
+      .flatMap(t => 
+        t.members.map((m: any, index: number) => ({
+          "Team #": t.team_number,
+          "Team Name": t.team_name,
+          "College Name": t.college_name,
+          "Name": m.name,
+          "Designation": index === 0 ? "Leader" : "Member",
+          "Phone": m.phone,
+          "Email": m.email,
+          "Meal Preference": m.mealPreference,
+          "UTR ID": t.transaction_id,
+        }))
+      );
+
+    const confirmedVeg = teams
+      .filter(t => !t.is_waitlist)
+      .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0);
+    const confirmedNonVeg = teams
+      .filter(t => !t.is_waitlist)
+      .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0);
+
+    const waitlistVeg = teams
+      .filter(t => t.is_waitlist)
+      .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0);
+    const waitlistNonVeg = teams
+      .filter(t => t.is_waitlist)
+      .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0);
 
     const summaryData = [
-      { "Metric": "Total Confirmed Teams", "Value": teams.filter(t => !t.is_waitlist).length },
-      { "Metric": "Total Participants", "Value": totalParticipants },
-      { "Metric": "Total Veg Meals", "Value": vegCount },
-      { "Metric": "Total Non-Veg Meals", "Value": nonVegCount },
-      { "Metric": "Total Revenue", "Value": `₹${totalRevenue}` },
+      { "Metric": "Category", "Value": "", "Notes": "" },
+      { "Metric": "CONFIRMED", "Value": "", "Notes": "" },
+      { "Metric": "Teams", "Value": confirmedTeams, "Notes": "" },
+      { "Metric": "Participants", "Value": confirmedParticipants, "Notes": "" },
+      { "Metric": "Veg Meals", "Value": confirmedVeg, "Notes": "" },
+      { "Metric": "Non-Veg Meals", "Value": confirmedNonVeg, "Notes": "" },
+      { "Metric": "Revenue", "Value": `₹${totalRevenue}`, "Notes": "@₹400/team" },
+      { "Metric": "", "Value": "", "Notes": "" },
+      { "Metric": "WAITLIST", "Value": "", "Notes": "" },
+      { "Metric": "Teams", "Value": waitlistTeams, "Notes": "" },
+      { "Metric": "Participants", "Value": waitlistParticipants, "Notes": "" },
+      { "Metric": "Veg Meals", "Value": waitlistVeg, "Notes": "" },
+      { "Metric": "Non-Veg Meals", "Value": waitlistNonVeg, "Notes": "" },
+      { "Metric": "", "Value": "", "Notes": "" },
+      { "Metric": "TOTAL", "Value": "", "Notes": "" },
+      { "Metric": "Teams", "Value": totalTeams, "Notes": "" },
+      { "Metric": "Participants", "Value": totalParticipants, "Notes": "" },
+      { "Metric": "Veg Meals", "Value": vegCount, "Notes": "" },
+      { "Metric": "Non-Veg Meals", "Value": nonVegCount, "Notes": "" },
     ];
 
     const wb = XLSX.utils.book_new();
-    const wsDetailed = XLSX.utils.json_to_sheet(detailedData);
+    const wsConfirmed = XLSX.utils.json_to_sheet(confirmedTeamsData);
+    const wsWaitlist = XLSX.utils.json_to_sheet(waitlistTeamsData);
     const wsSummary = XLSX.utils.json_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, wsDetailed, "Participant List");
+    
+    XLSX.utils.book_append_sheet(wb, wsConfirmed, "✓ Confirmed Teams");
+    XLSX.utils.book_append_sheet(wb, wsWaitlist, "⏳ Waitlist Teams");
     XLSX.utils.book_append_sheet(wb, wsSummary, "Summary Report");
     XLSX.writeFile(wb, `SINOVA_26_Report.xlsx`);
   };
 
-  const filteredTeams = teams.filter(t => 
-    t.team_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTeams = teams.filter(t => {
+    const matchesSearch = t.team_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (filterStatus === 'confirmed') return matchesSearch && !t.is_waitlist;
+    if (filterStatus === 'waitlist') return matchesSearch && t.is_waitlist;
+    return matchesSearch;
+  });
 
   if (!isAuthenticated) {
     return (
@@ -127,12 +213,33 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Cards Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard label="Teams" value={totalTeams} icon={<Activity size={20} className="text-blue-400" />} trend="Total" />
-          <StatCard label="Revenue" value={`₹${totalRevenue}`} icon={<CreditCard size={20} className="text-yellow-400" />} trend="Confirmed" />
-          <StatCard label="Students" value={totalParticipants} icon={<Users size={20} className="text-cyan-400" />} trend={`${teams.length} Teams`} />
-          <StatCard label="Veg" value={vegCount} icon={<Utensils size={20} className="text-green-500" />} trend="Kitchen" />
-          <StatCard label="Non-Veg" value={nonVegCount} icon={<Utensils size={20} className="text-red-500" />} trend="Kitchen" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="Total Teams" value={totalTeams} icon={<Activity size={20} className="text-blue-400" />} sublabel="All Registrations" />
+          <StatCard label="Confirmed Teams" value={confirmedTeams} icon={<Users size={20} className="text-green-400" />} sublabel="Teams" highlight="green" />
+          <StatCard label="Waitlist Teams" value={waitlistTeams} icon={<Users size={20} className="text-orange-400" />} sublabel="Teams" highlight="orange" />
+          <StatCard label="Revenue" value={`₹${totalRevenue}`} icon={<CreditCard size={20} className="text-yellow-400" />} sublabel="Confirmed Only" />
+        </div>
+
+        {/* Confirmed Stats */}
+        <div>
+          <h3 className="text-xs font-black italic uppercase tracking-widest text-green-400 mb-3">✓ Confirmed Registrations</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Students" value={confirmedParticipants} icon={<Users size={20} className="text-green-400" />} sublabel="Participants" highlight="green" />
+            <StatCard label="Veg Meals" value={confirmedVeg} icon={<Utensils size={20} className="text-green-500" />} sublabel="Kitchen" highlight="green" />
+            <StatCard label="Non-Veg Meals" value={confirmedNonVeg} icon={<Utensils size={20} className="text-red-500" />} sublabel="Kitchen" highlight="green" />
+            <StatCard label="Total Meals" value={confirmedVeg + confirmedNonVeg} icon={<Utensils size={20} className="text-cyan-400" />} sublabel="Confirmed" highlight="green" />
+          </div>
+        </div>
+
+        {/* Waitlist Stats */}
+        <div>
+          <h3 className="text-xs font-black italic uppercase tracking-widest text-orange-400 mb-3">⏳ Waitlist Registrations</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Students" value={waitlistParticipants} icon={<Users size={20} className="text-orange-400" />} sublabel="Participants" highlight="orange" />
+            <StatCard label="Veg Meals" value={waitlistVeg} icon={<Utensils size={20} className="text-green-500" />} sublabel="Kitchen" highlight="orange" />
+            <StatCard label="Non-Veg Meals" value={waitlistNonVeg} icon={<Utensils size={20} className="text-red-500" />} sublabel="Kitchen" highlight="orange" />
+            <StatCard label="Total Meals" value={waitlistVeg + waitlistNonVeg} icon={<Utensils size={20} className="text-cyan-400" />} sublabel="Waitlist" highlight="orange" />
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -147,8 +254,49 @@ export default function AdminDashboard() {
           />
         </div>
 
+        {/* Filter Tabs */}
+        <div className="flex gap-3 flex-wrap">
+          <button
+            onClick={() => setFilterStatus('all')}
+            className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
+              filterStatus === 'all'
+                ? 'bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.5)]'
+                : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+            }`}
+          >
+            All Teams ({teams.length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('confirmed')}
+            className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
+              filterStatus === 'confirmed'
+                ? 'bg-green-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.5)]'
+                : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+            }`}
+          >
+            ✓ Confirmed ({confirmedTeams})
+          </button>
+          <button
+            onClick={() => setFilterStatus('waitlist')}
+            className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${
+              filterStatus === 'waitlist'
+                ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.5)]'
+                : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+            }`}
+          >
+            ⏳ Waitlist ({waitlistTeams})
+          </button>
+        </div>
+
         {/* Table View */}
         <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-md">
+          <div className="px-6 py-4 bg-white/5 border-b border-white/5 flex justify-between items-center">
+            <p className="text-xs font-mono text-gray-500 uppercase tracking-widest">
+              {filterStatus === 'confirmed' && `✓ Confirmed Teams (${filteredTeams.length})`}
+              {filterStatus === 'waitlist' && `⏳ Waitlist Teams (${filteredTeams.length})`}
+              {filterStatus === 'all' && `All Teams (${filteredTeams.length})`}
+            </p>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-gray-400">
@@ -275,17 +423,18 @@ export default function AdminDashboard() {
   );
 }
 
-function StatCard({ label, value, icon, trend }: { label: string; value: string | number; icon: React.ReactNode; trend: string }) {
+function StatCard({ label, value, icon, sublabel, highlight }: { label: string; value: string | number; icon: React.ReactNode; sublabel: string; highlight?: string }) {
+  const bgColor = highlight === 'green' ? 'group-hover:opacity-100 from-green-500/20' : highlight === 'orange' ? 'from-orange-500/20' : 'from-cyan-500/20';
   return (
-    <div className="bg-white/5 border border-white/10 p-6 rounded-3xl relative overflow-hidden group">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-      <div className="relative flex justify-between items-start mb-4">
-        <div className="p-3 bg-white/5 rounded-2xl border border-white/5">{icon}</div>
-        <span className="text-[9px] font-mono text-gray-500 uppercase bg-white/5 px-2 py-1 rounded">{trend}</span>
+    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl relative overflow-hidden group">
+      <div className={`absolute -inset-0.5 bg-gradient-to-r ${bgColor} to-transparent opacity-0 group-hover:opacity-100 transition duration-500`}></div>
+      <div className="relative flex justify-between items-start mb-3">
+        <div className="p-2 bg-white/5 rounded-lg border border-white/5">{icon}</div>
       </div>
       <div className="relative">
-        <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">{label}</p>
-        <p className="text-3xl font-black italic text-white tracking-tighter">{value}</p>
+        <p className="text-[9px] uppercase tracking-widest text-gray-500 font-bold mb-0.5">{label}</p>
+        <p className="text-2xl font-black italic text-white tracking-tighter">{value}</p>
+        <p className="text-[8px] text-gray-600 mt-1">{sublabel}</p>
       </div>
     </div>
   );
