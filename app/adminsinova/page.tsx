@@ -8,6 +8,7 @@ import {
   Phone, Mail, Utensils, Maximize2, CreditCard
 } from "lucide-react";
 import * as XLSX from "xlsx";
+import { jsPDF } from "jspdf";
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -88,49 +89,92 @@ export default function AdminDashboard() {
   };
 
   const exportToExcel = () => {
-    const confirmedTeamsData = teams
+    // Sort teams numerically by team_number
+    const sortedTeams = [...teams].sort((a, b) => {
+      const aNum = a.team_number ? parseInt(String(a.team_number)) : Infinity;
+      const bNum = b.team_number ? parseInt(String(b.team_number)) : Infinity;
+      return aNum - bNum;
+    });
+
+    // Build confirmed teams data with empty rows between teams
+    const confirmedTeamsData: any[] = [];
+    sortedTeams
       .filter(t => !t.is_waitlist)
-      .flatMap(t => 
-        t.members.map((m: any, index: number) => ({
-          "Team #": t.team_number,
-          "Team Name": t.team_name,
-          "College Name": t.college_name,
-          "Name": m.name,
-          "Designation": index === 0 ? "Leader" : "Member",
-          "Phone": m.phone,
-          "Email": m.email,
-          "Meal Preference": m.mealPreference,
-          "UTR ID": t.transaction_id,
-        }))
-      );
+      .forEach(t => {
+        t.members.forEach((m: any, index: number) => {
+          confirmedTeamsData.push({
+            "Team #": t.team_number,
+            "Team Name": t.team_name,
+            "College Name": t.college_name,
+            "Name": m.name,
+            "Designation": index === 0 ? "Leader" : "Member",
+            "Phone": m.phone,
+            "Email": m.email,
+            "Meal Preference": m.mealPreference,
+            "UTR ID": t.transaction_id,
+            "Attendance": "",
+          });
+        });
+        // Add empty row after each team
+        confirmedTeamsData.push({
+          "Team #": "",
+          "Team Name": "",
+          "College Name": "",
+          "Name": "",
+          "Designation": "",
+          "Phone": "",
+          "Email": "",
+          "Meal Preference": "",
+          "UTR ID": "",
+          "Attendance": "",
+        });
+      });
 
-    const waitlistTeamsData = teams
+    // Build waitlist teams data with empty rows between teams
+    const waitlistTeamsData: any[] = [];
+    sortedTeams
       .filter(t => t.is_waitlist)
-      .flatMap(t => 
-        t.members.map((m: any, index: number) => ({
-          "Team #": t.team_number,
-          "Team Name": t.team_name,
-          "College Name": t.college_name,
-          "Name": m.name,
-          "Designation": index === 0 ? "Leader" : "Member",
-          "Phone": m.phone,
-          "Email": m.email,
-          "Meal Preference": m.mealPreference,
-          "UTR ID": t.transaction_id,
-        }))
-      );
+      .forEach(t => {
+        t.members.forEach((m: any, index: number) => {
+          waitlistTeamsData.push({
+            "Team #": t.team_number,
+            "Team Name": t.team_name,
+            "College Name": t.college_name,
+            "Name": m.name,
+            "Designation": index === 0 ? "Leader" : "Member",
+            "Phone": m.phone,
+            "Email": m.email,
+            "Meal Preference": m.mealPreference,
+            "UTR ID": t.transaction_id,
+            "Attendance": "",
+          });
+        });
+        // Add empty row after each team
+        waitlistTeamsData.push({
+          "Team #": "",
+          "Team Name": "",
+          "College Name": "",
+          "Name": "",
+          "Designation": "",
+          "Phone": "",
+          "Email": "",
+          "Meal Preference": "",
+          "UTR ID": "",
+          "Attendance": "",
+        });
+      });
 
-    const confirmedVeg = teams
+    const confirmedVeg = sortedTeams
       .filter(t => !t.is_waitlist)
       .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0);
-    const confirmedNonVeg = teams
+    const confirmedNonVeg = sortedTeams
       .filter(t => !t.is_waitlist)
       .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0);
 
-    const waitlistVeg = teams
+    const waitlistVeg = sortedTeams
       .filter(t => t.is_waitlist)
       .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Veg').length, 0);
-    const waitlistNonVeg = teams
+    const waitlistNonVeg = sortedTeams
       .filter(t => t.is_waitlist)
       .reduce((acc, t) => acc + t.members.filter((m: any) => m.mealPreference === 'Non-Veg').length, 0);
 
@@ -167,14 +211,93 @@ export default function AdminDashboard() {
     XLSX.writeFile(wb, `SINOVA_26_Report.xlsx`);
   };
 
-  const filteredTeams = teams.filter(t => {
-    const matchesSearch = t.team_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filterStatus === 'confirmed') return matchesSearch && !t.is_waitlist;
-    if (filterStatus === 'waitlist') return matchesSearch && t.is_waitlist;
-    return matchesSearch;
-  });
+
+  const handleDownloadReceipt = (team: any) => {
+      const doc = new jsPDF();
+      const margin = 20;
+      
+      // Get registration date
+      const registrationDate = new Date(team.created_at).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
+      // Background & Header
+      doc.setFillColor(2, 6, 23); // #020617 (Dark Navy)
+      doc.rect(0, 0, 210, 297, 'F');
+      
+      doc.setTextColor(34, 211, 238); // Cyan
+      doc.setFontSize(28);
+      doc.setFont("helvetica", "bold");
+      doc.text("SINOVA '26", margin, 30);
+      
+      doc.setFontSize(10);
+      doc.setFont("courier", "normal");
+      doc.text("OFFICIAL REGISTRATION RECEIPT", margin, 38);
+      
+      // Horizontal Line
+      doc.setDrawColor(255, 255, 255, 0.1);
+      doc.line(margin, 45, 190, 45);
+  
+      // Team ID Highlight
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.text(`TEAM ID: #${team.team_number}`, margin, 60);
+      doc.setFontSize(22);
+      doc.text(team.team_name.toUpperCase(), margin, 70);
+  
+      // Registration Details Table-like structure
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text("DATE:", margin, 85);
+      doc.text("STATUS:", 80, 85);
+  
+      doc.setTextColor(255, 255, 255);
+      doc.text(registrationDate, margin, 92);
+      doc.text(team.is_waitlist ? "WAITLIST" : "CONFIRMED", 80, 92);
+  
+      // Members Section
+      doc.setFontSize(12);
+      doc.setTextColor(34, 211, 238);
+      doc.text("TEAM MEMBERS", margin, 110);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      let yPos = 120;
+      team.members.forEach((m: any, i: number) => {
+        doc.text(`${i + 1}. ${m.name} (${m.mealPreference})`, margin, yPos);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`   ${m.email} | ${m.phone}`, margin, yPos + 5);
+        doc.setTextColor(255, 255, 255);
+        yPos += 15;
+      });
+  
+      // Footer Note
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Please present this digital receipt at the venue for verification.", margin, 270);
+      doc.text("SCMS School of Technology and Management", margin, 275);
+  
+      // Save PDF
+      doc.save(`SINOVA_Receipt_Team_${team.team_number}.pdf`);
+    };
+
+  const filteredTeams = teams
+    .filter(t => {
+      const matchesSearch = t.team_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (filterStatus === 'confirmed') return matchesSearch && !t.is_waitlist;
+      if (filterStatus === 'waitlist') return matchesSearch && t.is_waitlist;
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      // Numeric sort by team_number, with waitlist teams at the end
+      const aNum = a.team_number ? parseInt(String(a.team_number)) : Infinity;
+      const bNum = b.team_number ? parseInt(String(b.team_number)) : Infinity;
+      return aNum - bNum;
+    });
 
   if (!isAuthenticated) {
     return (
@@ -384,9 +507,45 @@ export default function AdminDashboard() {
 
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Payment</h3>
-                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                    <p className="text-[10px] text-gray-500 uppercase mb-1">UTR / Transaction ID</p>
-                    <p className="font-mono text-sm text-cyan-400 tracking-wider">{selectedTeam.transaction_id || "NOT_FOUND"}</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <button 
+                      onClick={() => handleDownloadReceipt(selectedTeam)}
+                      className="flex items-center justify-center gap-2 bg-cyan-400/10 border border-cyan-400/30 hover:bg-cyan-400/20 text-cyan-400 px-4 py-3 rounded-2xl font-bold transition-all"
+                    >
+                      <Download size={16} /> RECEIPT
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const leaderPhone = selectedTeam.members[0]?.phone;
+                        if (leaderPhone) {
+                          const phoneNumber = leaderPhone.replace(/[^\d+]/g, '');
+                          const message = `Greeting from SINOVA'26\nHello ${selectedTeam.team_name} 👋\n\nYour registration for SINOVA'26 has been confirmed.\n\nTeam ID: #${selectedTeam.team_number}\nMembers: ${selectedTeam.members.length}\n\nPlease find your receipt attached.\n\nSee you at the hackathon 🚀`;
+                          const encodedMessage = encodeURIComponent(message);
+                          const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+                          window.open(whatsappUrl, '_blank');
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/30 hover:bg-green-500/20 text-green-400 px-4 py-3 rounded-2xl font-bold transition-all"
+                    >
+                      <Download size={16} /> WHATSAPP
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        const leaderEmail = selectedTeam.members[0]?.email;
+                        if (leaderEmail) {
+                          // Open mailto in new tab after a short delay
+                          setTimeout(() => {
+                            const subject = `SINOVA'26 - Registration Confirmed - Team ${selectedTeam.team_name}`;
+                            const body = `Greetings from SINOVA'26!\n\nHello ${selectedTeam.team_name},\n\nWe are thrilled to inform you that your registration for SINOVA'26 has been successfully confirmed!\n\nTeam Details:\n- Team ID: #${selectedTeam.team_number}\n- Team Name: ${selectedTeam.team_name}\n- Members: ${selectedTeam.members.length}\n\nPlease find your registration receipt attached to this email.\n\nWe look forward to seeing you at the hackathon!\n\nSee you soon! 🚀\n\nBest Regards,\nSINOVA'26 Team`;
+                            const mailtoUrl = `mailto:${leaderEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                            window.open(mailtoUrl, '_blank');
+                          }, 500);
+                        }
+                      }}
+                      className="flex items-center justify-center gap-2 bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 text-blue-400 px-4 py-3 rounded-2xl font-bold transition-all"
+                    >
+                      <Mail size={16} /> EMAIL
+                    </button>
                   </div>
 
                   {selectedTeam.payment_proof_url ? (
