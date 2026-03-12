@@ -3,15 +3,29 @@ import Link from "next/link";
 import Image from "next/image";
 import { Medal, Crown, Handshake, Award, Sparkles } from "lucide-react";
 
-// Mock Data for Sponsors (Replace logos with your actual files later)
-const sponsors = [
-  { name: "IEDC", logo: "/sponsers/IEDC.png" },
-  { name: "IIC", logo: "/sponsers/IIC.png" },
-  // { name: "GitHub", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg" },
-  // { name: "Vercel", logo: "https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png" },
-  // { name: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-  // { name: "DigitalOcean", logo: "https://upload.wikimedia.org/wikipedia/commons/f/ff/DigitalOcean_logo.svg" },
-];
+// Sponsors organized hierarchically
+const sponsorTiers = {
+  title: [
+    { name: "Turkish", logo: "/sponsers/Turkish.png", tier: "Title Sponsor" }
+  ],
+  gold: [
+    { name: "Ergo", logo: "/sponsers/ergo.png", tier: "Gold Sponsor" }
+  ],
+  silver: [
+    { name: "IREL", logo: "/sponsers/IREL.png", tier: "Silver Sponsor" }
+  ],
+  bronze: [
+    { name: "Figmark", logo: "/sponsers/Figmark.jpg", tier: "Third Prize Sponsor" }
+  ],
+  sprint: [
+    { name: "BMK", logo: "/sponsers/BMK.jpg", tier: "Sprint Sponsor" },
+    { name: "Unique Occassio Tech", logo: "/sponsers/UOT.png", tier: "Sprint Sponsor" }
+  ],
+  partners: [
+    { name: "IEDC", logo: "/sponsers/IEDC.png", tier: "Technical Partner" },
+    { name: "IIC", logo: "/sponsers/IIC.png", tier: "Technical Partner" }
+  ]
+};
 
 export default function HomePage() {
   return (
@@ -233,27 +247,229 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Premium Sponsor Grid - Prominent Display */}
-        <div className="mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {sponsors.map((sponsor, index) => (
+        {/* ===== TITLE SPONSOR - LARGEST ===== */}
+        <div className="mb-24">
+          <div className="text-center mb-8">
+            <div className="inline-block">
+              <p className="text-xs font-mono tracking-[0.3em] text-yellow-400 uppercase font-black mb-3">★ Title Sponsor ★</p>
+              <div className="h-1 w-24 bg-linear-to-r from-transparent via-yellow-400 to-transparent mx-auto" />
+            </div>
+          </div>
+          
+          <div className="max-w-3xl mx-auto">
+            {sponsorTiers.title.map((sponsor, index) => (
               <div 
                 key={index}
-                className="group/card relative"
+                className="group/title relative"
               >
-                {/* Glow Effect */}
-                <div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                {/* Enhanced Glow for Title Sponsor */}
+                <div className="absolute -inset-1 bg-linear-to-r from-yellow-500/40 via-amber-500/30 to-yellow-500/40 rounded-3xl blur-lg opacity-50 group-hover/title:opacity-75 transition-opacity duration-500" />
                 
                 {/* Card */}
-                <div className="relative h-48 bg-linear-to-br from-white/[0.03] to-white/[0.01] border border-white/10 rounded-2xl flex flex-col items-center justify-center p-8 backdrop-blur-sm transition-all duration-500 hover:border-cyan-400/50 hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden">
+                <div className="relative bg-linear-to-br from-yellow-500/[0.08] to-amber-500/[0.04] border-2 border-yellow-500/40 rounded-3xl flex flex-col items-center justify-center p-12 backdrop-blur-sm transition-all duration-500 hover:border-yellow-400/80 hover:shadow-[0_0_80px_rgba(250,204,21,0.3)] overflow-hidden">
                   
-                  {/* Subtle Grid Pattern */}
-                  <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:12px_12px]" />
+                  {/* Animated Background Pattern */}
+                  <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#ffd700_1px,transparent_1px)] bg-[size:16px_16px]" />
                   
                   {/* Content */}
-                  <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-4">
-                    {/* Logo */}
-                    <div className="relative w-full h-20 opacity-90 group-hover/card:opacity-100 group-hover/card:scale-105 transition-all duration-500 ease-out">
+                  <div className="relative z-10 w-full flex flex-col items-center justify-center gap-6">
+                    {/* Logo - Extra Large */}
+                    <div className="relative w-80 h-48 opacity-95 group-hover/title:opacity-100 group-hover/title:scale-110 transition-all duration-500 ease-out">
+                      <Image 
+                        src={sponsor.logo} 
+                        alt={`${sponsor.name} logo`}
+                        fill 
+                        className="object-contain drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]" 
+                      />
+                    </div>
+                    
+                    {/* Divider */}
+                    <div className="w-32 h-1 bg-linear-to-r from-transparent via-yellow-400/60 to-transparent" />
+                    
+                    {/* Sponsor Info */}
+                    <div className="text-center space-y-3 transition-all duration-300">
+                      <h3 className="text-5xl font-black text-white tracking-tight">
+                        {sponsor.name}
+                      </h3>
+                      <p className="text-sm font-mono text-yellow-300 tracking-[0.3em] uppercase font-bold drop-shadow-lg">
+                        {sponsor.tier}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Corner Crown Accents */}
+                  <div className="absolute top-4 right-4 text-3xl opacity-30 group-hover/title:opacity-60 transition-opacity">👑</div>
+                  <div className="absolute bottom-4 left-4 text-3xl opacity-30 group-hover/title:opacity-60 transition-opacity">👑</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ===== GOLD SPONSOR ===== */}
+        <div className="mb-20">
+          <div className="text-center mb-8">
+            <div className="inline-block">
+              <p className="text-xs font-mono tracking-[0.3em] text-amber-300 uppercase font-bold mb-2">Gold Sponsor</p>
+              <div className="h-0.5 w-20 bg-linear-to-r from-transparent via-amber-300 to-transparent mx-auto" />
+            </div>
+          </div>
+          
+          <div className="max-w-2xl mx-auto">
+            {sponsorTiers.gold.map((sponsor, index) => (
+              <div 
+                key={index}
+                className="group/gold relative"
+              >
+                {/* Glow Effect */}
+                <div className="absolute -inset-0.5 bg-linear-to-r from-amber-500/30 via-yellow-400/20 to-amber-500/30 rounded-2xl blur opacity-40 group-hover/gold:opacity-60 transition-opacity duration-500" />
+                
+                {/* Card */}
+                <div className="relative bg-linear-to-br from-amber-500/[0.07] to-yellow-600/[0.03] border border-amber-400/50 rounded-2xl flex flex-col items-center justify-center p-10 backdrop-blur-sm transition-all duration-500 hover:border-amber-300/70 hover:shadow-[0_0_60px_rgba(217,119,6,0.25)] overflow-hidden">
+                  
+                  <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:14px_14px]" />
+                  
+                  <div className="relative z-10 w-full flex flex-col items-center justify-center gap-4">
+                    {/* Logo - Large */}
+                    <div className="relative w-64 h-32 opacity-90 group-hover/gold:opacity-100 group-hover/gold:scale-105 transition-all duration-500">
+                      <Image 
+                        src={sponsor.logo} 
+                        alt={`${sponsor.name} logo`}
+                        fill 
+                        className="object-contain drop-shadow-[0_0_15px_rgba(217,119,6,0.3)]" 
+                      />
+                    </div>
+                    
+                    <div className="w-20 h-0.5 bg-linear-to-r from-transparent via-amber-400/40 to-transparent" />
+                    
+                    <div className="text-center space-y-2">
+                      <h3 className="text-3xl font-bold text-white tracking-tight">
+                        {sponsor.name}
+                      </h3>
+                      <p className="text-xs font-mono text-amber-200 tracking-[0.2em] uppercase">
+                        {sponsor.tier}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="absolute top-3 right-3 text-2xl opacity-20 group-hover/gold:opacity-40 transition-opacity">🥇</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ===== SILVER & BRONZE SPONSORS ===== */}
+        <div className="mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            
+            {/* Silver Sponsor */}
+            <div>
+              <div className="text-center mb-6">
+                <p className="text-xs font-mono tracking-[0.2em] text-gray-300 uppercase font-semibold">Silver Sponsor</p>
+                <div className="h-0.5 w-16 bg-linear-to-r from-transparent via-gray-300 to-transparent mx-auto mt-2" />
+              </div>
+              
+              {sponsorTiers.silver.map((sponsor, index) => (
+                <div 
+                  key={index}
+                  className="group/silver relative"
+                >
+                  <div className="absolute -inset-0.5 bg-linear-to-r from-gray-400/20 to-blue-300/20 rounded-xl blur opacity-30 group-hover/silver:opacity-50 transition-opacity" />
+                  
+                  <div className="relative bg-linear-to-br from-gray-400/[0.05] to-gray-600/[0.02] border border-gray-400/40 rounded-xl flex flex-col items-center justify-center p-8 backdrop-blur-sm transition-all hover:border-gray-300/60 hover:shadow-[0_0_40px_rgba(200,200,200,0.15)]">
+                    
+                    <div className="relative z-10 w-full flex flex-col items-center justify-center gap-3">
+                      <div className="relative w-56 h-28 opacity-85 group-hover/silver:opacity-100 group-hover/silver:scale-105 transition-all">
+                        <Image 
+                          src={sponsor.logo} 
+                          alt={`${sponsor.name} logo`}
+                          fill 
+                          className="object-contain drop-shadow-[0_0_10px_rgba(200,200,200,0.2)]" 
+                        />
+                      </div>
+                      
+                      <div className="w-16 h-px bg-gray-400/30" />
+                      
+                      <div className="text-center space-y-1">
+                        <h3 className="text-2xl font-bold text-white">
+                          {sponsor.name}
+                        </h3>
+                        <p className="text-xs font-mono text-gray-300 tracking-[0.15em] uppercase">
+                          {sponsor.tier}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2 text-lg opacity-15 group-hover/silver:opacity-30">🥈</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bronze Sponsor */}
+            <div>
+              <div className="text-center mb-6">
+                <p className="text-xs font-mono tracking-[0.2em] text-orange-300 uppercase font-semibold">Third Prize Sponsor</p>
+                <div className="h-0.5 w-16 bg-linear-to-r from-transparent via-orange-300 to-transparent mx-auto mt-2" />
+              </div>
+              
+              {sponsorTiers.bronze.map((sponsor, index) => (
+                <div 
+                  key={index}
+                  className="group/bronze relative"
+                >
+                  <div className="absolute -inset-0.5 bg-linear-to-r from-orange-500/20 to-amber-600/15 rounded-xl blur opacity-30 group-hover/bronze:opacity-50 transition-opacity" />
+                  
+                  <div className="relative bg-linear-to-br from-orange-500/[0.05] to-amber-700/[0.02] border border-orange-400/35 rounded-xl flex flex-col items-center justify-center p-8 backdrop-blur-sm transition-all hover:border-orange-300/55 hover:shadow-[0_0_40px_rgba(217,119,6,0.15)]">
+                    
+                    <div className="relative z-10 w-full flex flex-col items-center justify-center gap-3">
+                      <div className="relative w-56 h-28 opacity-85 group-hover/bronze:opacity-100 group-hover/bronze:scale-105 transition-all">
+                        <Image 
+                          src={sponsor.logo} 
+                          alt={`${sponsor.name} logo`}
+                          fill 
+                          className="object-contain drop-shadow-[0_0_10px_rgba(217,119,6,0.15)]" 
+                        />
+                      </div>
+                      
+                      <div className="w-16 h-px bg-orange-400/30" />
+                      
+                      <div className="text-center space-y-1">
+                        <h3 className="text-2xl font-bold text-white">
+                          {sponsor.name}
+                        </h3>
+                        <p className="text-xs font-mono text-orange-200 tracking-[0.15em] uppercase">
+                          {sponsor.tier}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2 text-lg opacity-15 group-hover/bronze:opacity-30">🥉</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ===== SPRINT SPONSORS ===== */}
+        <div className="mb-20">
+          <div className="text-center mb-8">
+            <p className="text-xs font-mono tracking-[0.2em] text-cyan-300 uppercase font-semibold">Sprint Sponsors</p>
+            <div className="h-0.5 w-20 bg-linear-to-r from-transparent via-cyan-300 to-transparent mx-auto mt-2" />
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            {sponsorTiers.sprint.map((sponsor, index) => (
+              <div 
+                key={index}
+                className="group/sprint relative"
+              >
+                <div className="absolute -inset-0.5 bg-linear-to-r from-cyan-500/15 to-blue-500/15 rounded-lg blur opacity-25 group-hover/sprint:opacity-45 transition-opacity" />
+                
+                <div className="relative h-40 bg-linear-to-br from-white/[0.02] to-white/[0.01] border border-white/15 rounded-lg flex flex-col items-center justify-center p-6 backdrop-blur-sm transition-all hover:border-cyan-400/40 hover:shadow-[0_0_35px_rgba(34,211,238,0.1)]">
+                  
+                  <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-2">
+                    <div className="relative w-32 h-16 opacity-80 group-hover/sprint:opacity-95 group-hover/sprint:scale-110 transition-all">
                       <Image 
                         src={sponsor.logo} 
                         alt={`${sponsor.name} logo`}
@@ -262,27 +478,16 @@ export default function HomePage() {
                       />
                     </div>
                     
-                    {/* Divider */}
-                    <div className="w-12 h-px bg-linear-to-r from-transparent via-cyan-400/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
+                    <div className="w-12 h-px bg-cyan-400/20 mt-1" />
                     
-                    {/* Sponsor Name - Always Visible but Enhanced on Hover */}
-                    <div className="text-center space-y-1 transition-all duration-300 group-hover/card:scale-105">
-                      <h3 className="text-lg font-bold text-white/70 group-hover/card:text-white transition-colors">
+                    <div className="text-center mt-2">
+                      <h3 className="text-sm font-semibold text-white/80 group-hover/sprint:text-white transition-colors">
                         {sponsor.name}
                       </h3>
-                      <p className="text-[10px] font-mono text-cyan-400/60 group-hover/card:text-cyan-400 tracking-[0.2em] uppercase transition-colors">
-                        Technical Partner
+                      <p className="text-[9px] font-mono text-cyan-400/60 tracking-[0.15em] uppercase mt-0.5">
+                        {sponsor.tier}
                       </p>
                     </div>
-                  </div>
-
-                  {/* Corner Accents */}
-                  <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-white/10 group-hover/card:border-cyan-400/60 transition-all duration-300" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-white/10 group-hover/card:border-cyan-400/60 transition-all duration-300" />
-                  
-                  {/* Top-right badge on hover */}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
-                    <Sparkles className="text-cyan-400/60" size={14} />
                   </div>
                 </div>
               </div>
@@ -290,40 +495,47 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Additional Scrolling Marquee for Extended Recognition */}
-        <div className="relative">
+        {/* ===== TECHNICAL PARTNERS ===== */}
+        <div className="mb-16">
           <div className="text-center mb-8">
-            <p className="text-xs font-mono tracking-[0.3em] text-gray-500 uppercase">
-              Technical Collaboration & Support
-            </p>
+            <p className="text-xs font-mono tracking-[0.2em] text-blue-300/70 uppercase font-semibold">Technical Partners</p>
+            <div className="h-px w-16 bg-linear-to-r from-transparent via-blue-300/50 to-transparent mx-auto mt-2" />
           </div>
-
-          {/* Marquee Container */}
-          <div className="relative flex flex-col group/marquee py-4 overflow-hidden border-t border-b border-white/5">
-            {/* Scrolling Track - Smaller, Complementary Display */}
-            <div className="animate-marquee flex gap-6 items-center whitespace-nowrap">
-              {[...sponsors, ...sponsors, ...sponsors, ...sponsors].map((sponsor, index) => (
-                <div 
-                  key={index} 
-                  className="flex-shrink-0 w-40 h-40 border border-white/5 rounded-xl flex items-center justify-center p-4 backdrop-blur-sm hover:bg-white/[0.03] transition-colors"
-                >
-                  <div className="relative w-full h-20  opacity-60 hover:opacity-80 transition-opacity">
-                    <Image 
-                      src={sponsor.logo} 
-                      alt={sponsor.name} 
-                      fill 
-                      className="object-contain" 
-                    />
-                    <p className="absolute -bottom-8 left-0 right-0 text-center text-xs text-white">{sponsor.name}</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 max-w-xl mx-auto">
+            {sponsorTiers.partners.map((sponsor, index) => (
+              <div 
+                key={index}
+                className="group/partner relative"
+              >
+                <div className="absolute -inset-0.5 bg-linear-to-r from-blue-400/10 to-cyan-300/10 rounded-lg blur opacity-20 group-hover/partner:opacity-35 transition-opacity" />
+                
+                <div className="relative h-32 bg-white/[0.01] border border-white/10 rounded-lg flex flex-col items-center justify-center p-4 backdrop-blur-sm transition-all hover:border-blue-400/30">
+                  
+                  <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-2">
+                    <div className="relative w-24 h-12 opacity-70 group-hover/partner:opacity-85 group-hover/partner:scale-105 transition-all">
+                      <Image 
+                        src={sponsor.logo} 
+                        alt={`${sponsor.name} logo`}
+                        fill 
+                        className="object-contain" 
+                      />
+                    </div>
+                    
+                    <div className="text-center mt-1">
+                      <h3 className="text-xs font-semibold text-white/70 group-hover/partner:text-white/90 transition-colors">
+                        {sponsor.name}
+                      </h3>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Thank You Message */}
-        <div className="mt-16 text-center">
+        <div className="mt-20 text-center">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/20 rounded-full">
             <Handshake className="text-cyan-400" size={18} />
             <p className="text-sm text-gray-400">
@@ -332,25 +544,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 10s linear infinite;
-        }
-        .group\/marquee:hover .animate-marquee {
-          animation-play-state: paused;
-        }
-        .delay-75 {
-          animation-delay: 75ms;
-        }
-        .delay-150 {
-          animation-delay: 150ms;
-        }
-      `}</style>
     </section>
     </section>
   );
