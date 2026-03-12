@@ -67,16 +67,6 @@ export default function RulesPage() {
                   </li>
                 ))}
               </ul>
-
-              {/* Special Note for Muslim Participants */}
-              <div className="mt-8 p-6 rounded-xl border border-yellow-500/20 bg-yellow-500/5">
-                <h4 className="text-yellow-500 font-bold text-sm uppercase tracking-widest mb-4">Note for Muslim Participants</h4>
-                <ul className="space-y-2 text-sm text-gray-300">
-                  <li>• Prayer arrangements will be provided during the event.</li>
-                  <li>• Food and refreshments will be arranged considering fasting participants.</li>
-                  <li>• Fruits and light refreshments provided at the time of breaking fast.</li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
